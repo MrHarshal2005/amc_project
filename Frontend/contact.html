@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    (function(){
+      const _store = {};
+      window.localStorage = {
+        getItem: function(k){ return Object.prototype.hasOwnProperty.call(_store,k) ? _store[k] : null; },
+        setItem: function(k,v){ _store[k]=String(v); },
+        removeItem: function(k){ delete _store[k]; },
+        clear: function(){ for (let k in _store) { if (Object.prototype.hasOwnProperty.call(_store,k)) delete _store[k]; } }
+      };
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - Amravati Municipal Corporation</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Segoe+UI&display=swap" rel="stylesheet">
+
+  <style>
+    /* --- GLOBAL RESET --- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* FIX: Force scrollbar to match Home/About layouts exactly */
+    html { overflow-y: scroll; }
+
+    body {
+      /* MATCHED FONT with About/Services Page */
+      font-family: 'Poppins', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* --- NAVBAR (EXACT COPY FROM SERVICES.HTML) --- */
+    .navbar {
+        background: #1d4ed8; 
+        padding: 15px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        position: sticky; 
+        top: 0;
+        z-index: 1000;
+    }
+    .navbar h2 { color: white; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+    .navbar ul { list-style: none; display: flex; gap: 30px; margin: 0; padding: 0; }
+    .navbar ul li a { 
+        color: rgba(255,255,255,0.9); text-decoration: none; font-weight: 500; 
+        font-size: 15px; transition: 0.3s; padding: 5px 10px; border-radius: 4px;
+    }
+    .navbar ul li a:hover, .navbar ul li a:focus { color: #ffd700; outline: 2px solid #ffd700; outline-offset: 2px; }
+
+    /* --- HEADER --- */
+    .header {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      color: white;
+      text-align: center;
+      padding: 40px 20px;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    .header p {
+      margin-top: 10px;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    /* --- CONTACT CONTENT --- */
+    .contact-section {
+      max-width: 1200px;
+      margin: 20px auto 40px;
+      padding: 0 20px;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1.5fr; /* Info takes less space, Map takes more */
+      gap: 30px;
+    }
+    .contact-info {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      height: 100%;
+    }
+    .contact-info h2 { 
+      color: #1d4ed8; 
+      margin-bottom: 25px; 
+      font-size: 1.5rem; 
+      font-weight: 600;
+      border-bottom: 2px solid #f0f2f5;
+      padding-bottom: 15px;
+    }
+    .contact-item { margin-bottom: 25px; display: flex; gap: 15px; }
+    .contact-icon {
+        width: 40px; height: 40px; background: #eff6ff; color: #1d4ed8;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; flex-shrink: 0;
+    }
+    .contact-text strong { display: block; color: #1d4ed8; font-weight: 600; margin-bottom: 4px; font-size: 1rem; }
+    .contact-text p, .contact-text a { color: #555; font-size: 0.95rem; line-height: 1.6; margin: 0; text-decoration: none; }
+    .contact-text a:hover { color: #2563eb; text-decoration: underline; }
+
+    /* --- ADVANCED MAP STYLING --- */
+    .map-container {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      height: 100%;
+      min-height: 550px;
+      background: #e0e0e0;
+      position: relative;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    /* --- FOOTER (EXACT COPY FROM SERVICES.HTML) --- */
+    footer {
+        background: #1e3c72; 
+        color: white; 
+        text-align: center; 
+        padding: 20px;
+        font-size: 14px; 
+        margin-top: auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .contact-section { grid-template-columns: 1fr; }
+      .map-container { height: 400px; min-height: 400px; }
+      .navbar { padding: 15px 20px; flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar" role="navigation" aria-label="Main Navigation">
+    <h2>AMC Portal</h2>
+    <ul>
+      <li><a href="{{ url_for('home') }}">Home</a></li>
+      <li><a href="{{ url_for('about') }}">About</a></li>
+      <li><a href="{{ url_for('services') }}">Services</a></li>
+      <li><a href="{{ url_for('contact') }}" aria-current="page" style="color:#ffd700;">Contact</a></li>
+      <li><a href="{{ url_for('feedback') }}">Feedback</a></li>
+    </ul>
+  </nav>
+
+  <div class="header">
+    <h1>Contact Us</h1>
+    <p>We are here to assist you. Reach out to Amravati Municipal Corporation.</p>
+  </div>
+
+  <div class="contact-section">
+    
+    <div class="contact-info">
+      <h2><i class="fas fa-building"></i> Head Office</h2>
+      
+      <div class="contact-item">
+        <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+        <div class="contact-text">
+            <strong>Official Address</strong>
+            <p>Amravati Municipal Corporation,<br>
+            Rajkamal Square, Amravati,<br>
+            Maharashtra - 444601</p>
+        </div>
+      </div>
+
+      <div class="contact-item">
+        <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
+        <div class="contact-text">
+            <strong>Contact Numbers</strong>
+            <p>Landline: 0721-2561569 / 2576482</p>
+            <p>Toll Free: 1800-233-6450</p>
+            <p>Helpdesk: 8657900459 (9AM - 8PM)</p>
+        </div>
+      </div>
+
+      <div class="contact-item">
+        <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+        <div class="contact-text">
+            <strong>Email Support</strong>
+            <p><a href="mailto:amravaticorporation@gmail.com">amravaticorporation@gmail.com</a></p>
+            <p><a href="mailto:helpdesk.amravatimc@gmail.com">helpdesk.amravatimc@gmail.com</a></p>
+        </div>
+      </div>
+
+      <div class="contact-item">
+        <div class="contact-icon"><i class="fas fa-clock"></i></div>
+        <div class="contact-text">
+            <strong>Office Hours</strong>
+            <p>Mon - Fri: 10:00 AM - 06:00 PM</p>
+            <p>Sat - Sun: Closed</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-container">
+      <iframe 
+        src="https://maps.google.com/maps?q=Amravati%20Municipal%20Corporation%20Rajkamal%20Square&t=&z=15&ie=UTF8&iwloc=&output=embed"
+        allowfullscreen="" 
+        loading="lazy" 
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Amravati Municipal Corporation Location Map">
+      </iframe>
+    </div>
+
+  </div>
+
+  <footer role="contentinfo">
+    <p>&copy; 2025 Amravati Municipal Corporation | Digital India | Last Updated: Dec 2025</p>
+  </footer>
+
+</body>
+</html>

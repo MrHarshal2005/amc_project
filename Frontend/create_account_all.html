@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Official Account</title>
+  <style>
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .signup-box {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      text-align: center;
+      margin: 50px auto;
+    }
+
+    .signup-box h2 {
+      margin-bottom: 20px;
+      color: #d97706;
+      font-size: 24px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #d97706;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #d97706;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #b45309;
+    }
+
+    a {
+      display: block;
+      margin-top: 15px;
+      font-size: 14px;
+      color: #d97706;
+      text-decoration: none;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #666;
+      text-align: left;
+      margin-top: -5px;
+      margin-bottom: 5px;
+    }
+
+    /* --- NAVBAR --- */
+    .navbar {
+        background: #2563eb;
+        padding: 15px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .navbar h2 {
+        color: white;
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .navbar ul {
+        list-style: none;
+        display: flex;
+        gap: 30px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .navbar ul li a {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 15px;
+        transition: 0.3s;
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+
+    .navbar ul li a:hover,
+    .navbar ul li a:focus {
+        color: #ffd700;
+        outline: 2px solid #ffd700;
+        outline-offset: 2px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar" role="navigation" aria-label="Main Navigation">
+    <h2>AMC Portal</h2>
+    <ul>
+      <li><a href="{{ url_for('home') }}">Home</a></li>
+      <li><a href="{{ url_for('about') }}">About</a></li>
+      <li><a href="{{ url_for('services') }}">Services</a></li>
+      <li><a href="{{ url_for('contact') }}">Contact</a></li>
+      <li><a href="{{ url_for('feedback') }}">Feedback</a></li>
+    </ul>
+  </nav>
+  <div class="signup-box">
+    <h2>Create Official Account</h2>
+
+    <!-- ERROR MESSAGE BLOCK -->
+    {% if error %}
+    <div
+      style="background-color: #fee2e2; color: #b91c1c; padding: 10px; margin-bottom: 15px; border-radius: 6px; font-size: 13px; border: 1px solid #f87171;">
+      <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/register">
+      <!-- 1. Full Name -->
+      <input type="text" name="full_name" placeholder="Full Name" required>
+
+      <!-- 2. UNIQUE EMPLOYEE ID -->
+      <input type="text" name="emp_id" placeholder="Employee ID (Must be unique)" required>
+      <div class="note">* This will be your username for login</div>
+
+      <!-- 3. Email -->
+      <input type="email" name="email" placeholder="Official Email Address" required>
+
+      <!-- 4. Role Selection -->
+      <select name="role" required>
+        <option value="" disabled selected>Select Designation</option>
+        <option value="commissioner">Municipal Commissioner</option>
+        <option value="deputy_commissioner">Deputy Commissioner</option>
+        <option value="assistant_commissioner">Assistant Commissioner</option>
+        <option value="hod">Head of Department (HOD)</option>
+        <option value="pa">Personal Assistant</option>
+        <option value="system_manager">System Manager</option>
+      </select>
+
+      <!-- 5. Password -->
+      <input type="password" name="password" placeholder="Set Password" required>
+      <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+
+      <button type="submit">Register Official</button>
+    </form>
+
+    <a href="/">⬅ Back to Login</a>
+  </div>
+
+  <script>
+    // Check passwords before submitting
+    document.querySelector('form').addEventListener('submit', function (e) {
+      const pass = document.querySelector('input[name="password"]').value;
+      const conf = document.querySelector('input[name="confirm_password"]').value;
+
+      if (pass !== conf) {
+        e.preventDefault();
+        alert("Passwords do not match!");
+      }
+    });
+  </script>
+</body>
+
+</html>

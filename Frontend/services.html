@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    (function(){
+      const _store = {};
+      window.localStorage = {
+        getItem: function(k){ return Object.prototype.hasOwnProperty.call(_store,k) ? _store[k] : null; },
+        setItem: function(k,v){ _store[k]=String(v); },
+        removeItem: function(k){ delete _store[k]; },
+        clear: function(){ for (let k in _store) { if (Object.prototype.hasOwnProperty.call(_store,k)) delete _store[k]; } }
+      };
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services - Amravati Municipal Corporation</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Segoe+UI&display=swap" rel="stylesheet">
+
+  <style>
+    /* --- GLOBAL RESET --- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* FIX: Force scrollbar to match Home/About layouts exactly */
+    html { overflow-y: scroll; }
+
+    body {
+      /* MATCHED FONT with About Page */
+      font-family: 'Poppins', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* --- NAVBAR (EXACT COPY FROM ABOUT.HTML) --- */
+    .navbar {
+        background: #2563eb; 
+        padding: 15px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        position: sticky; 
+        top: 0;
+        z-index: 1000;
+    }
+    .navbar h2 { color: white; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+    .navbar ul { list-style: none; display: flex; gap: 30px; margin: 0; padding: 0; }
+    .navbar ul li a { 
+        color: rgba(255,255,255,0.9); text-decoration: none; font-weight: 500; 
+        font-size: 15px; transition: 0.3s; padding: 5px 10px; border-radius: 4px;
+    }
+    .navbar ul li a:hover, .navbar ul li a:focus { color: #ffd700; outline: 2px solid #ffd700; outline-offset: 2px; }
+
+    /* --- HEADER (Consistent Gradient) --- */
+    .header {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      color: white;
+      text-align: center;
+      padding: 40px 20px;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    .header p {
+      margin-top: 10px;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    /* --- SERVICES CONTENT --- */
+    .services-section {
+      max-width: 1200px;
+      margin: 20px auto 40px;
+      padding: 0 20px;
+      flex: 1; 
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+    .service-card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-top: 5px solid transparent;
+    }
+    .service-card:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      border-top-color: #2563eb;
+    }
+    .service-card img {
+      width: 70px;
+      margin-bottom: 20px;
+    }
+    .service-card h3 {
+      color: #1d4ed8;
+      margin-bottom: 12px;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    .service-card p {
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    /* --- FOOTER (EXACT COPY FROM ABOUT.HTML) --- */
+    footer {
+        background: #1e3c72; 
+        color: white; 
+        text-align: center; 
+        padding: 20px;
+        font-size: 14px; 
+        margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar" role="navigation" aria-label="Main Navigation">
+    <h2>AMC Portal</h2>
+    <ul>
+      <li><a href="{{ url_for('home') }}">Home</a></li>
+      <li><a href="{{ url_for('about') }}">About</a></li>
+      <li><a href="{{ url_for('services') }}" aria-current="page" style="color:#ffd700;">Services</a></li>
+      <li><a href="{{ url_for('contact') }}">Contact</a></li>
+      <li><a href="{{ url_for('feedback') }}">Feedback</a></li>
+    </ul>
+  </nav>
+
+  <div class="header">
+    <h1>Our Services</h1>
+    <p>Delivering essential services for the citizens of Amravati</p>
+  </div>
+
+  <div class="services-section">
+    <div class="services-grid">
+
+      <div class="service-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/2907/2907431.png" alt="Water Supply">
+        <h3>Water Supply</h3>
+        <p>Providing clean and safe drinking water across Amravati with efficient distribution and monitoring.</p>
+      </div>
+
+      <div class="service-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/3097/3097150.png" alt="Waste Management">
+        <h3>Waste Management</h3>
+        <p>Door-to-door garbage collection, disposal, and cleanliness drives to maintain hygiene in the city.</p>
+      </div>
+
+      <div class="service-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/706/706164.png" alt="Sanitation">
+        <h3>Sanitation</h3>
+        <p>Ensuring clean streets, public toilets, and proper drainage systems for a healthier environment.</p>
+      </div>
+
+      <div class="service-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Roads & Infrastructure">
+        <h3>Roads & Infrastructure</h3>
+        <p>Maintenance of roads, streetlights, and urban infrastructure to support safe and smooth travel.</p>
+      </div>
+
+      <div class="service-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/2966/2966486.png" alt="Public Health">
+        <h3>Public Health</h3>
+        <p>Health awareness programs, vaccination drives, and medical camps for citizen welfare.</p>
+      </div>
+
+      <div class="service-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/1585/1585144.png" alt="Welfare Programs">
+        <h3>Welfare Programs</h3>
+        <p>Various schemes for education, housing, and development of underprivileged citizens.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <footer role="contentinfo">
+    <p>&copy; 2025 Amravati Municipal Corporation | Digital India | Last Updated: Dec 2025</p>
+  </footer>
+
+</body>
+</html>

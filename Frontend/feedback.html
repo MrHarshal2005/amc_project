@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - Amravati Municipal Corporation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- EXACT NAVBAR MATCH --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+
+        .navbar {
+            background: #2563eb;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 100;
+        }
+        .navbar h2 { color: white; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+        .navbar ul { list-style: none; display: flex; gap: 30px; margin: 0; padding: 0; }
+        .navbar ul li a { color: rgba(255,255,255,0.9); text-decoration: none; font-weight: 500; font-size: 15px; transition: 0.3s; }
+        .navbar ul li a:hover, .navbar ul li a.active { color: #ffd700; }
+
+        /* --- CONTENT --- */
+        .header { background: linear-gradient(135deg, #1d4ed8, #2563eb); color: white; text-align: center; padding: 60px 20px; margin-bottom: 40px; }
+        .header h1 { margin: 0; font-size: 2.5rem; font-weight: 700; }
+        .header p { opacity: 0.9; margin-top: 10px; font-size: 1.1rem; }
+
+        .feedback-container { max-width: 600px; margin: 0 auto 60px; padding: 0 20px; flex: 1; }
+        .feedback-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .feedback-card h2 { color: #1e3c72; margin-bottom: 25px; text-align: center; font-size: 1.8rem; }
+
+        form input, form textarea, form select {
+            width: 100%; padding: 14px; margin-bottom: 20px;
+            border: 1px solid #e2e8f0; border-radius: 8px;
+            font-size: 0.95rem; outline: none; transition: 0.3s; background: #f8fafc; font-family: 'Poppins', sans-serif;
+        }
+        form input:focus, form textarea:focus, form select:focus { border-color: #2563eb; background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        
+        button {
+            width: 100%; padding: 14px; border: none; border-radius: 8px;
+            background: #2563eb; color: white; font-size: 1rem;
+            font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+        button:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+
+        .flash-messages { margin-bottom: 20px; }
+        .alert { padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9rem; }
+        .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+
+        footer { background: #1e3c72; color: white; text-align: center; padding: 20px; font-size: 14px; margin-top: auto; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <h2>AMC Portal</h2>
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('about') }}">About</a></li>
+            <li><a href="{{ url_for('services') }}">Services</a></li>
+            <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            <li><a href="{{ url_for('feedback') }}" aria-current="page" style="color:#ffd700;">Feedback</a></li>
+        </ul>
+    </nav>
+
+    <div class="header">
+        <h1>Feedback</h1>
+        <p>We value your suggestions to improve our services</p>
+    </div>
+
+    <div class="feedback-container">
+        <div class="feedback-card">
+            <h2>Submit Your Feedback</h2>
+
+            <!-- Flash messages -->
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <form method="POST" action="{{ url_for('submit_feedback') }}">
+                <input type="text" name="name" placeholder="Your Full Name" required>
+                <input type="email" name="email" placeholder="Your Email Address" required>
+                <select name="category" required>
+                    <option value="">Select Category</option>
+                    <option value="water">Water Supply</option>
+                    <option value="waste">Waste Management</option>
+                    <option value="sanitation">Sanitation</option>
+                    <option value="roads">Roads & Infrastructure</option>
+                    <option value="health">Public Health</option>
+                    <option value="other">Other</option>
+                </select>
+                <textarea name="message" rows="5" placeholder="Please describe your feedback or suggestion..." required></textarea>
+                <button type="submit">Submit Feedback</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>&copy; 2025 Amravati Municipal Corporation</footer>
+</body>
+</html>

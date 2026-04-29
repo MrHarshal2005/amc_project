@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Manager - AMC Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --primary: #1e293b;
+            --accent: #3b82f6;
+            --success: #16a34a;
+            --danger: #ef4444;
+            --warn: #d97706;
+            --sidebar-w: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            background: var(--bg);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: white;
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+            border-right: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            border: none;
+            background: none;
+            color: #64748b;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background: #f1f5f9;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-btn.logout {
+            color: var(--danger);
+            margin-top: auto;
+        }
+
+        .nav-btn.logout:hover {
+            background: #fee2e2;
+        }
+
+        /* MAIN */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .header h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .section-view {
+            display: none;
+        }
+
+        .section-view.active {
+            display: block;
+        }
+
+        .dashboard-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* TABLE */
+        .table-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 15px;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 13px 15px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+
+        tr:hover td {
+            background: #fafafa;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .badge-blue {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .badge-green {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .badge-purple {
+            background: #f5f3ff;
+            color: #7c3aed;
+        }
+
+        .badge-orange {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .badge-teal {
+            background: #f0fdfa;
+            color: #0f766e;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warn {
+            background: var(--warn);
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .icon-btn.edit {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .icon-btn.del {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .icon-btn.pass {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        /* SEARCH */
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-wrap i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .search-wrap input {
+            padding: 8px 12px 8px 32px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 240px;
+            outline: none;
+        }
+
+        /* MODAL OVERLAY */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-box {
+            background: white;
+            width: 490px;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title span.close {
+            cursor: pointer;
+            font-size: 1.4rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .modal-title span.close:hover {
+            color: var(--danger);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        /* STATS BAR */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-mini {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--accent);
+        }
+
+        .stat-mini h4 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-mini p {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand"><i class="fas fa-server"></i> System Mgr</div>
+        <nav>
+            <button class="nav-btn active" onclick="switchTab('officials')"><i class="fas fa-users-cog"></i> Officials</button>
+            <button class="nav-btn" onclick="switchTab('passwords')"><i class="fas fa-key"></i> Reset Password</button>
+        </nav>
+        <button class="nav-btn logout" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h2><i class="fas fa-shield-alt" style="color:var(--accent);margin-right:8px;"></i>System Manager</h2>
+                <p style="font-size:0.85rem;color:#64748b;">Manage official accounts and access</p>
+            </div>
+        </header>
+
+        <div class="dashboard-body">
+            <!-- OFFICIALS TAB -->
+            <div id="officials" class="section-view active">
+                <!-- Stats Bar -->
+                <div class="stats-bar">
+                    <div class="stat-mini" style="border-color:#3b82f6;">
+                        <h4 id="cnt-total">0</h4>
+                        <p>Total Officials</p>
+                    </div>
+                    <div class="stat-mini" style="border-color:#7c3aed;">
+                        <h4 id="cnt-comm">0</h4>
+                        <p>Commissioner & DC</p>
+                    </div>
+                    <div class="stat-mini" style="border-color:#0f766e;">
+                        <h4 id="cnt-hod">0</h4>
+                        <p>HOD & PA</p>
+                    </div>
+                    <div class="stat-mini" style="border-color:#16a34a;">
+                        <h4 id="cnt-other">0</h4>
+                        <p>Other Roles</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3><i class="fas fa-users" style="margin-right:8px;color:var(--accent);"></i>Official Accounts</h3>
+                        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                            <div class="search-wrap">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="officials-search" placeholder="Search name or role..." oninput="searchOfficials(this.value)">
+                            </div>
+                            <button class="btn btn-primary" onclick="openCreateModal()">
+                                <i class="fas fa-plus"></i> Add Official
+                            </button>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Department</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="officials-tbody">
+                                <tr>
+                                    <td colspan="6" style="text-align:center;color:#94a3b8;padding:30px;">Loading officials...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESET PASSWORD TAB -->
+            <div id="passwords" class="section-view">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3><i class="fas fa-key" style="margin-right:8px;color:var(--warn);"></i>Reset Official Password</h3>
+                        <div class="search-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="pass-search" placeholder="Search official..." oninput="filterPassList(this.value)">
+                        </div>
+                    </div>
+                    <div id="pass-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;padding:4px;">
+                        <div style="color:#94a3b8;text-align:center;padding:20px;grid-column:1/-1;">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- CREATE/EDIT OFFICIAL MODAL -->
+    <div id="officialModal" class="modal-overlay" onclick="closeOfficialModal(event)">
+        <div class="modal-box">
+            <div class="modal-title">
+                <span id="official-modal-title">Create Official</span>
+                <span class="close" onclick="closeOfficialModal()">&times;</span>
+            </div>
+            <input type="hidden" id="edit-official-id">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="of-name" placeholder="e.g., Rahul Sharma">
+            </div>
+            <div class="form-group">
+                <label>Username *</label>
+                <input type="text" id="of-username" placeholder="e.g., comm.amc">
+            </div>
+            <div class="form-group" id="of-pass-group">
+                <label>Password *</label>
+                <input type="password" id="of-password" placeholder="Min 8 characters">
+            </div>
+            <div class="form-group">
+                <label>Role *</label>
+                <select id="of-role" onchange="onRoleChange()">
+                    <option value="">-- Select Role --</option>
+                    <option value="commissioner">Commissioner</option>
+                    <option value="deputy_commissioner">Deputy Commissioner</option>
+                    <option value="assistant_commissioner">Assistant Commissioner</option>
+                    <option value="hod">HOD (Head of Department)</option>
+                    <option value="pa">PA (Personal Assistant)</option>
+                </select>
+            </div>
+            <!-- Dynamic Department Field: only for Deputy Commissioner and HOD, PA now excluded -->
+            <div class="form-group" id="of-dept-group" style="display:none;">
+                <label id="of-dept-label">Department</label>
+                <!-- Zone dropdown (Deputy Commissioner) -->
+                <select id="of-zone" style="display:none;width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.92rem;outline:none;">
+                    <option value="">-- Select Zone --</option>
+                    <option value="Zone A">Zone A</option>
+                    <option value="Zone B">Zone B</option>
+                    <option value="Zone C">Zone C</option>
+                    <option value="Zone D">Zone D</option>
+                </select>
+                <!-- Department dropdown (HOD only now) -->
+                <select id="of-dept-select" style="display:none;width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.92rem;outline:none;">
+                    <option value="">-- Select Department --</option>
+                    <option value="Water Supply Department">Water Supply Department</option>
+                    <option value="Roads & Infrastructure">Roads &amp; Infrastructure</option>
+                    <option value="Sanitation Department">Sanitation Department</option>
+                    <option value="Town Planning">Town Planning</option>
+                    <option value="Health Department">Health Department</option>
+                    <option value="Fire Department">Fire Department</option>
+                    <option value="Revenue Department">Revenue Department</option>
+                    <option value="Garden Department">Garden Department</option>
+                    <option value="Electrical Department">Electrical Department</option>
+                    <option value="Slum Rehabilitation">Slum Rehabilitation</option>
+                </select>
+                <input type="hidden" id="of-dept">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="of-email" placeholder="official@amc.gov.in">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeOfficialModal()">Cancel</button>
+                <button class="btn btn-primary" id="official-save-btn" onclick="saveOfficial()">
+                    <i class="fas fa-save"></i> Save Official
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESET PASSWORD MODAL -->
+    <div id="resetPassModal" class="modal-overlay" onclick="closeResetModal(event)">
+        <div class="modal-box">
+            <div class="modal-title">
+                <span>Reset Password</span>
+                <span class="close" onclick="closeResetModal()">&times;</span>
+            </div>
+            <div style="background:#f8fafc;border-radius:10px;padding:15px;margin-bottom:20px;display:flex;align-items:center;gap:12px;">
+                <i class="fas fa-user-circle" style="font-size:2rem;color:var(--accent);"></i>
+                <div>
+                    <div id="rp-name" style="font-weight:700;color:var(--primary);"></div>
+                    <div id="rp-user" style="font-size:0.82rem;color:#64748b;"></div>
+                </div>
+            </div>
+            <input type="hidden" id="rp-official-id">
+            <div class="form-group">
+                <label>New Password *</label>
+                <input type="password" id="rp-pass1" placeholder="Min 8 characters">
+            </div>
+            <div class="form-group">
+                <label>Confirm Password *</label>
+                <input type="password" id="rp-pass2" placeholder="Re-enter password">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeResetModal()">Cancel</button>
+                <button class="btn btn-success" onclick="doResetPassword()">
+                    <i class="fas fa-key"></i> Reset Password
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRM MODAL -->
+    <div id="deleteModal" class="modal-overlay" onclick="closeDeleteModal(event)">
+        <div class="modal-box" style="width:420px;">
+            <div class="modal-title">
+                <span style="color:var(--danger);"><i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>Delete Official</span>
+                <span class="close" onclick="closeDeleteModal()">&times;</span>
+            </div>
+            <p style="color:#475569;margin-bottom:20px;">Are you sure you want to delete <strong id="del-name"></strong>? This action cannot be undone.</p>
+            <input type="hidden" id="del-official-id">
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="doDeleteOfficial()">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allOfficials = [];
+        let currentView = 'officials';
+
+        // ===== NAVIGATION =====
+        function switchTab(tab) {
+            document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            const btn = document.querySelector(`button[onclick="switchTab('${tab}')"]`);
+            if (btn) btn.classList.add('active');
+            currentView = tab;
+            if (tab === 'officials') loadOfficials();
+            if (tab === 'passwords') loadPassList();
+        }
+
+        // ===== LOAD OFFICIALS =====
+        async function loadOfficials() {
+            try {
+                const res = await fetch('/api/system/officials');
+                const data = await res.json();
+                allOfficials = data.officials || [];
+                renderOfficialsTable(allOfficials);
+                updateStats(allOfficials);
+            } catch (err) {
+                document.getElementById('officials-tbody').innerHTML = `<tr><td colspan="6" style="text-align:center;color:#ef4444;padding:20px;">Error loading officials.</td></tr>`;
+            }
+        }
+
+        function updateStats(list) {
+            document.getElementById('cnt-total').textContent = list.length;
+            document.getElementById('cnt-comm').textContent = list.filter(o => ['commissioner', 'deputy_commissioner', 'assistant_commissioner'].includes(o.role)).length;
+            document.getElementById('cnt-hod').textContent = list.filter(o => ['hod', 'pa'].includes(o.role)).length;
+            document.getElementById('cnt-other').textContent = list.filter(o => !['commissioner', 'deputy_commissioner', 'assistant_commissioner', 'hod', 'pa'].includes(o.role)).length;
+        }
+
+        const ROLE_LABELS = {
+            commissioner: 'Commissioner', deputy_commissioner: 'Deputy Commissioner',
+            assistant_commissioner: 'Assistant Commissioner', hod: 'HOD', pa: 'PA',
+            system_manager: 'System Manager'
+        };
+        const ROLE_BADGE = {
+            commissioner: 'badge-blue', deputy_commissioner: 'badge-teal',
+            assistant_commissioner: 'badge-purple', hod: 'badge-orange',
+            pa: 'badge-green', system_manager: 'badge-blue'
+        };
+
+        function renderOfficialsTable(list) {
+            const tbody = document.getElementById('officials-tbody');
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:30px;">No officials found. Click "Add Official" to create one.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map((o, i) => `
+                <tr>
+                    <td style="color:#94a3b8;font-size:0.82rem;">${i + 1}</td>
+                    <td><strong>${o.name || '—'}</strong></td>
+                    <td><span style="font-family:monospace;background:#f1f5f9;padding:2px 8px;border-radius:4px;font-size:0.85rem;">${o.username}</span></td>
+                    <td><span class="badge ${ROLE_BADGE[o.role] || 'badge-blue'}">${ROLE_LABELS[o.role] || o.role}</span></td>
+                    <td style="color:#64748b;">${o.department || '—'}</td>
+                    <td style="display:flex;gap:6px;align-items:center;">
+                        <button class="icon-btn edit" onclick="openEditModal(${o.id})" title="Edit"><i class="fas fa-pen"></i></button>
+                        <button class="icon-btn pass" onclick="openResetModal(${o.id})" title="Reset Password"><i class="fas fa-key"></i></button>
+                        <button class="icon-btn del" onclick="openDeleteModal(${o.id},'${(o.name || '').replace(/'/g, '')}')" title="Delete"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function searchOfficials(q) {
+            const query = q.toLowerCase().trim();
+            const filtered = query ? allOfficials.filter(o =>
+                (o.name || '').toLowerCase().includes(query) ||
+                (o.username || '').toLowerCase().includes(query) ||
+                (o.role || '').toLowerCase().includes(query)
+            ) : allOfficials;
+            renderOfficialsTable(filtered);
+        }
+
+        // ===== ROLE CHANGE HANDLER - PA NO LONGER REQUIRES DEPARTMENT/ZONE =====
+        function onRoleChange() {
+            const role = document.getElementById('of-role').value;
+            const deptGroup = document.getElementById('of-dept-group');
+            const zoneEl   = document.getElementById('of-zone');
+            const deptEl   = document.getElementById('of-dept-select');
+            const deptLbl  = document.getElementById('of-dept-label');
+            const hiddenDept = document.getElementById('of-dept');
+            
+            // Reset all
+            deptGroup.style.display = 'none';
+            zoneEl.style.display = 'none';
+            deptEl.style.display = 'none';
+            hiddenDept.value = '';
+            
+            if (role === 'deputy_commissioner') {
+                deptLbl.textContent = 'Zone *';
+                deptGroup.style.display = 'block';
+                zoneEl.style.display = 'block';
+            } 
+            else if (role === 'hod') {
+                deptLbl.textContent = 'Department *';
+                deptGroup.style.display = 'block';
+                deptEl.style.display = 'block';
+            }
+            else if (role === 'pa') {
+                // PA: no department/zone field at all → keep hidden, enforce empty department
+                deptGroup.style.display = 'none';
+                hiddenDept.value = '';
+            }
+            // For commissioner, assistant_commissioner, or empty: department block stays hidden
+        }
+
+        // ===== CREATE OFFICIAL =====
+        function openCreateModal() {
+            document.getElementById('official-modal-title').textContent = 'Create Official';
+            document.getElementById('edit-official-id').value = '';
+            document.getElementById('of-name').value = '';
+            document.getElementById('of-username').value = '';
+            document.getElementById('of-password').value = '';
+            document.getElementById('of-role').value = '';
+            document.getElementById('of-zone').value = '';
+            document.getElementById('of-dept-select').value = '';
+            document.getElementById('of-dept').value = '';
+            document.getElementById('of-email').value = '';
+            document.getElementById('of-pass-group').style.display = 'block';
+            document.getElementById('official-save-btn').innerHTML = '<i class="fas fa-plus"></i> Create Official';
+            onRoleChange(); // reset department UI based on (empty) role
+            document.getElementById('officialModal').style.display = 'flex';
+        }
+
+        function openEditModal(id) {
+            const o = allOfficials.find(x => x.id === id);
+            if (!o) return;
+            document.getElementById('official-modal-title').textContent = 'Edit Official';
+            document.getElementById('edit-official-id').value = id;
+            document.getElementById('of-name').value = o.name || '';
+            document.getElementById('of-username').value = o.username || '';
+            document.getElementById('of-password').value = '';
+            document.getElementById('of-role').value = o.role || '';
+            document.getElementById('of-email').value = o.email || '';
+            document.getElementById('of-pass-group').style.display = 'none';
+            document.getElementById('official-save-btn').innerHTML = '<i class="fas fa-save"></i> Save Changes';
+            
+            // Reset department fields, then call role handler
+            onRoleChange();
+            
+            // For existing officials, pre-fill department only if role requires it (deputy_commissioner or hod)
+            if (o.role === 'deputy_commissioner' && o.department) {
+                document.getElementById('of-zone').value = o.department;
+                document.getElementById('of-dept').value = o.department;
+            } 
+            else if (o.role === 'hod' && o.department) {
+                document.getElementById('of-dept-select').value = o.department;
+                document.getElementById('of-dept').value = o.department;
+            }
+            else if (o.role === 'pa') {
+                // PA should never have department: clear hidden field and ensure UI hidden
+                document.getElementById('of-dept').value = '';
+            }
+            document.getElementById('officialModal').style.display = 'flex';
+        }
+
+        function closeOfficialModal(event) {
+            if (event && event.target !== document.getElementById('officialModal') && event.target !== document.querySelector('.modal-overlay')) return;
+            document.getElementById('officialModal').style.display = 'none';
+        }
+
+        async function saveOfficial() {
+            const id = document.getElementById('edit-official-id').value;
+            const name = document.getElementById('of-name').value.trim();
+            const username = document.getElementById('of-username').value.trim();
+            const password = document.getElementById('of-password').value;
+            const role = document.getElementById('of-role').value;
+            const email = document.getElementById('of-email').value.trim();
+
+            // Determine department only for roles that require it: deputy_commissioner & hod
+            let dept = '';
+            if (role === 'deputy_commissioner') {
+                dept = document.getElementById('of-zone').value;
+            } else if (role === 'hod') {
+                dept = document.getElementById('of-dept-select').value;
+            } else if (role === 'pa') {
+                // PA explicitly no department
+                dept = '';
+            } else {
+                dept = '';
+            }
+            document.getElementById('of-dept').value = dept;
+
+            if (!name || !username || !role) { alert('Name, username and role are required.'); return; }
+            if (!id && !password) { alert('Password is required for new officials.'); return; }
+            
+            // Validation: only deputy_commissioner and HOD require department/zone
+            if ((role === 'deputy_commissioner' || role === 'hod') && !dept) {
+                const fieldName = (role === 'deputy_commissioner') ? 'Zone' : 'Department';
+                alert(`Please select a ${fieldName} for ${role === 'hod' ? 'HOD' : 'Deputy Commissioner'}.`);
+                return;
+            }
+            
+            // For PA role, ensure we never send department value
+            if (role === 'pa') dept = '';
+            
+            const payload = { name, username, role, department: dept, email };
+            if (!id) payload.password = password;
+            const url = id ? '/api/system/officials/update' : '/api/system/officials/create';
+            if (id) payload.id = parseInt(id);
+            
+            const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const data = await res.json();
+            if (data.success) {
+                alert(id ? 'Official updated!' : 'Official created!');
+                document.getElementById('officialModal').style.display = 'none';
+                loadOfficials();
+                if (currentView === 'passwords') loadPassList();
+            } else { 
+                alert(data.msg || 'Error saving official.'); 
+            }
+        }
+
+        // ===== DELETE =====
+        function openDeleteModal(id, name) {
+            document.getElementById('del-official-id').value = id;
+            document.getElementById('del-name').textContent = name;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+        function closeDeleteModal(event) {
+            if (event && event.target !== document.getElementById('deleteModal')) return;
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+        async function doDeleteOfficial() {
+            const id = document.getElementById('del-official-id').value;
+            const res = await fetch('/api/system/officials/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: parseInt(id) }) });
+            const data = await res.json();
+            if (data.success) { alert('Official deleted.'); document.getElementById('deleteModal').style.display = 'none'; loadOfficials(); if (currentView === 'passwords') loadPassList(); }
+            else { alert(data.msg || 'Error deleting.'); }
+        }
+
+        // ===== RESET PASSWORD =====
+        function openResetModal(id) {
+            const o = allOfficials.find(x => x.id === id);
+            if (!o) return;
+            document.getElementById('rp-official-id').value = id;
+            document.getElementById('rp-name').textContent = o.name || o.username;
+            document.getElementById('rp-user').textContent = `Username: ${o.username}`;
+            document.getElementById('rp-pass1').value = '';
+            document.getElementById('rp-pass2').value = '';
+            document.getElementById('resetPassModal').style.display = 'flex';
+        }
+        function closeResetModal(event) {
+            if (event && event.target !== document.getElementById('resetPassModal')) return;
+            document.getElementById('resetPassModal').style.display = 'none';
+        }
+        async function doResetPassword() {
+            const id = document.getElementById('rp-official-id').value;
+            const p1 = document.getElementById('rp-pass1').value;
+            const p2 = document.getElementById('rp-pass2').value;
+            if (!p1 || !p2) { alert('Please fill both fields.'); return; }
+            if (p1 !== p2) { alert('Passwords do not match!'); return; }
+            if (p1.length < 8) { alert('Password must be at least 8 characters.'); return; }
+            const o = allOfficials.find(x => x.id === parseInt(id));
+            const res = await fetch('/api/system/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: parseInt(id), username: o ? o.username : '', password: p1 })
+            });
+            const data = await res.json();
+            if (data.success) { alert('Password reset successfully!'); document.getElementById('resetPassModal').style.display = 'none'; }
+            else { alert(data.msg || 'Error resetting password.'); }
+        }
+
+        // ===== PASSWORDS TAB =====
+        function loadPassList() {
+            if (allOfficials.length === 0) {
+                fetch('/api/system/officials').then(r => r.json()).then(d => {
+                    allOfficials = d.officials || [];
+                    renderPassList(allOfficials);
+                });
+            } else { renderPassList(allOfficials); }
+        }
+        function renderPassList(list) {
+            const el = document.getElementById('pass-list');
+            if (!list || list.length === 0) { el.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:20px;grid-column:1/-1;">No officials found.</div>'; return; }
+            el.innerHTML = list.map(o => `
+                <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;cursor:pointer;transition:0.2s;border:1px solid #e2e8f0;" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='#e2e8f0'" onclick="openResetModal(${o.id})">
+                    <div style="width:50px;height:50px;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#2563eb;font-size:1.3rem;">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div style="font-weight:600;font-size:0.92rem;color:#1e293b;">${o.name || o.username}</div>
+                    <span class="badge ${ROLE_BADGE[o.role] || 'badge-blue'}">${ROLE_LABELS[o.role] || o.role}</span>
+                    <div style="font-size:0.8rem;color:#94a3b8;font-family:monospace;">${o.username}</div>
+                    <button class="btn btn-warn" style="width:100%;justify-content:center;margin-top:4px;" onclick="event.stopPropagation();openResetModal(${o.id})"><i class="fas fa-key"></i> Reset Password</button>
+                </div>`).join('');
+        }
+        function filterPassList(q) {
+            const query = q.toLowerCase().trim();
+            const filtered = query ? allOfficials.filter(o => (o.name || '').toLowerCase().includes(query) || (o.username || '').toLowerCase().includes(query)) : allOfficials;
+            renderPassList(filtered);
+        }
+
+        // ===== LOGOUT =====
+        async function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                await fetch('/logout');
+                window.location.href = '/';
+            }
+        }
+
+        window.onload = () => loadOfficials();
+    </script>
+</body>
+</html>

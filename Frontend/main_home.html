@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amravati Municipal Corporation - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Segoe+UI&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* --- GLOBAL RESET & FONTS --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Force scrollbar to prevent horizontal jump */
+        html {
+            overflow-y: scroll;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: #2563eb;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar h2 {
+            color: white;
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar ul li a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: 0.3s;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .navbar ul li a:hover,
+        .navbar ul li a:focus {
+            color: #ffd700;
+            outline: 2px solid #ffd700;
+            outline-offset: 2px;
+        }
+
+        /* --- MAIN HERO SECTION --- */
+        .hero-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
+
+        .header-text {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #1e3c72;
+        }
+
+        .header-text h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header-text p {
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        /* --- SLIDING LOGIN CONTAINER --- */
+        .container {
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+            position: relative;
+            overflow: hidden;
+            width: 900px;
+            max-width: 100%;
+            min-height: 600px;
+        }
+
+        .form-container {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            transition: all 0.6s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 50px;
+            text-align: center;
+        }
+
+        .form-container form {
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* --- FORM ELEMENTS --- */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        .in-group {
+            width: 100%;
+            margin: 8px 0;
+            text-align: left;
+        }
+
+        input,
+        select {
+            background-color: #eee;
+            border: 2px solid transparent;
+            padding: 12px 15px;
+            width: 100%;
+            outline: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            background-color: #fff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        input.invalid,
+        select.invalid {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 4px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .error-msg.visible {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        button {
+            border-radius: 20px;
+            border: 1px solid;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 12px 45px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: transform 80ms ease-in, opacity 0.3s;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-citizen {
+            background-color: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+
+        .btn-official {
+            background-color: #d97706;
+            border-color: #d97706;
+            color: #ffffff;
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        button:focus-visible {
+            outline: 3px solid #2563eb;
+            outline-offset: 2px;
+        }
+
+        .btn-ghost:focus-visible {
+            outline: 3px solid #fff;
+        }
+
+        .forgot-pass {
+            color: #333;
+            font-size: 13px;
+            text-decoration: none;
+            margin: 15px 0;
+            display: block;
+        }
+
+        .forgot-pass:hover {
+            text-decoration: underline;
+        }
+
+        .social-container {
+            margin: 20px 0;
+        }
+
+        .social-container a {
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 5px;
+            height: 40px;
+            width: 40px;
+            text-decoration: none;
+            color: #333;
+            transition: 0.3s;
+        }
+
+        .social-container a:hover {
+            background: #eee;
+        }
+
+        .social-container a:focus {
+            outline: 2px solid #2563eb;
+        }
+
+        .security-notice {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            width: 100%;
+        }
+
+        .privacy-link {
+            font-size: 0.75rem;
+            color: #2563eb;
+            margin-top: 5px;
+            text-decoration: none;
+        }
+
+        /* --- ANIMATION LOGIC --- */
+        .sign-in-container {
+            left: 0;
+            width: 50%;
+            z-index: 2;
+        }
+
+        .sign-up-container {
+            left: 0;
+            width: 50%;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .container.right-panel-active .sign-in-container {
+            transform: translateX(100%);
+        }
+
+        .container.right-panel-active .sign-up-container {
+            transform: translateX(100%);
+            opacity: 1;
+            z-index: 5;
+            animation: show 0.6s;
+        }
+
+        @keyframes show {
+
+            0%,
+            49.99% {
+                opacity: 0;
+                z-index: 1;
+            }
+
+            50%,
+            100% {
+                opacity: 1;
+                z-index: 5;
+            }
+        }
+
+        /* --- OVERLAY --- */
+        .overlay-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            transition: transform 0.6s ease-in-out;
+            z-index: 100;
+        }
+
+        .container.right-panel-active .overlay-container {
+            transform: translateX(-100%);
+        }
+
+        .overlay {
+            background: linear-gradient(to right, #2563eb, #d97706);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: 0 0;
+            color: #ffffff;
+            position: relative;
+            left: -100%;
+            height: 100%;
+            width: 200%;
+            transform: translateX(0);
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .container.right-panel-active .overlay {
+            transform: translateX(50%);
+        }
+
+        .overlay-panel {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 40px;
+            text-align: center;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            transform: translateX(0);
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .overlay-left {
+            transform: translateX(-20%);
+            background: #d97706;
+        }
+
+        .container.right-panel-active .overlay-left {
+            transform: translateX(0);
+        }
+
+        .overlay-right {
+            right: 0;
+            transform: translateX(0);
+            background: #2563eb;
+        }
+
+        .container.right-panel-active .overlay-right {
+            transform: translateX(20%);
+        }
+
+        .overlay-panel h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .overlay-panel p {
+            font-size: 14px;
+            margin: 20px 0 30px;
+            font-weight: 300;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #1e3c72;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: #facc15;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .container,
+            .form-container,
+            .overlay-container,
+            .overlay,
+            .overlay-panel {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                min-height: 600px;
+                width: 95%;
+            }
+
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .hero-section {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar" role="navigation" aria-label="Main Navigation">
+        <h2>AMC Portal</h2>
+        <ul>
+            <li><a href="{{ url_for('home') }}" aria-current="page">Home</a></li>
+            <li><a href="{{ url_for('about') }}">About</a></li>
+            <li><a href="{{ url_for('services') }}">Services</a></li>
+            <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            <li><a href="{{ url_for('feedback') }}">Feedback</a></li>
+        </ul>
+    </nav>
+
+    <main class="hero-section">
+
+        <header class="header-text">
+            <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:14px;">
+                <!-- REPLACED ICON WITH YOUR LOGO IMAGE (change src to your actual URL) -->
+                <img src="static/images/Amravati_Municipal_Corporation_Logo.png" 
+                     style="width:70px;height:70px;object-fit:contain;border-radius:16px;box-shadow:0 8px 24px rgba(37,99,235,0.35);background:white;padding:6px;" 
+                     alt="Amravati Municipal Corporation Logo">
+                <div style="text-align:left;">
+                    <div style="font-size:1.4rem;font-weight:800;color:#1e3c72;letter-spacing:-0.5px;">Amravati
+                        Municipal Corporation</div>
+                    <div style="font-size:0.9rem;color:#555;font-weight:500;">अमरावती महानगरपालिका — Smart Citizen
+                        Portal</div>
+                </div>
+            </div>
+            <h1><span lang="mr">अमरावती महानगरपालिका</span></h1>
+            <p>Unified Login Portal for Citizens &amp; Officials</p>
+        </header>
+
+        <div class="container" id="container">
+
+            <!-- OFFICIAL LOGIN FORM -->
+            <div class="form-container sign-up-container">
+                <form id="officialForm" novalidate autocomplete="off">
+                    <h1 style="color: #d97706;">Official Login</h1>
+                    <div class="social-container">
+                        <a href="#" aria-label="Login with Employee ID"><i class="fas fa-user-tie"></i></a>
+                        <a href="#" aria-label="Login with Dept ID"><i class="fas fa-building"></i></a>
+                    </div>
+                    <span style="font-size:13px; color:#777; margin-bottom:10px;">For Municipal Corporation
+                        Employees</span>
+
+                    <div class="in-group">
+                        <label for="officialRole" class="sr-only">Designation</label>
+                        <select id="officialRole" required aria-label="Select Designation" aria-required="true">
+                            <option value="" disabled selected>Select Designation</option>
+                            <option value="commissioner">Municipal Commissioner</option>
+                            <option value="deputy_commissioner">Deputy Commissioner</option>
+                            <option value="assistant_commissioner">Assistant Commissioner</option>
+                            <option value="hod">Head of Department</option>
+                            <option value="pa">Personal Assistant</option>
+                            <option value="system_manager" style="color: #d97706; font-weight: bold;">System Manager
+                            </option>
+                        </select>
+                        <div class="error-msg" id="err-role">Please select a valid designation.</div>
+                    </div>
+
+                    <div class="in-group">
+                        <label for="officialId" class="sr-only">Employee ID</label>
+                        <input type="text" id="officialId" placeholder="Employee ID / Username" required
+                            aria-label="Employee ID" autocomplete="username">
+                        <div class="error-msg" id="err-id">Employee ID cannot be empty.</div>
+                    </div>
+
+                    <div class="in-group">
+                        <label for="officialPass" class="sr-only">Password</label>
+                        <input type="password" id="officialPass" placeholder="Password" required aria-label="Password"
+                            autocomplete="current-password">
+                        <div class="error-msg" id="err-off-pass">Password must be at least 4 characters.</div>
+                    </div>
+
+                    <!-- Official account creation is managed by System Manager only -->
+
+                    <a href="{{ url_for('forgot_password') }}" class="forgot-pass">Forgot Password?</a>
+                    <button type="submit" class="btn-official" id="btnOfficial" disabled>Login as Official</button>
+
+                    <div class="security-notice">
+                        <i class="fas fa-lock"></i> &nbsp; Unauthorized access is prohibited.<br>
+                        System activity is monitored.
+                    </div>
+                </form>
+            </div>
+
+            <!-- CITIZEN LOGIN FORM -->
+            <div class="form-container sign-in-container">
+                <form id="citizenForm" novalidate autocomplete="off">
+                    <h1 style="color: #2563eb;">Citizen Login</h1>
+                    <div class="social-container">
+                        <a href="#" aria-label="Citizen Login"><i class="fas fa-user"></i></a>
+                        <a href="#" aria-label="Google Login"><i class="fab fa-google"></i></a>
+                    </div>
+                    <span style="font-size:13px; color:#777; margin-bottom:10px;">Access Public Services</span>
+
+                    <div class="in-group">
+                        <label for="citizenMobile" class="sr-only">Mobile Number</label>
+                        <input type="text" id="citizenMobile" placeholder="Mobile Number / Aadhaar" required
+                            aria-label="Mobile Number or Aadhaar" inputmode="numeric" autocomplete="tel">
+                        <div class="error-msg" id="err-mobile">Enter valid 10-digit Mobile or 12-digit Aadhaar.</div>
+                    </div>
+
+                    <div class="in-group">
+                        <label for="citizenPass" class="sr-only">Password</label>
+                        <input type="password" id="citizenPass" placeholder="Password" required aria-label="Password"
+                            autocomplete="current-password">
+                        <div class="error-msg" id="err-cit-pass">Password must be at least 6 characters.</div>
+                    </div>
+
+                    <a href="{{ url_for('forgot_password') }}" class="forgot-pass">Forgot Password?</a>
+                    <button type="submit" class="btn-citizen" id="btnCitizen" disabled>Login as Citizen</button>
+
+                    <!-- CITIZEN REGISTRATION LINKS -->
+                    <div style="margin-top: 15px;">
+                        <a href="{{ url_for('citizen_register') }}"
+                            style="font-size: 13px; color: #2563eb; font-weight:600;">Create New Citizen Account</a>
+                    </div>
+
+                    <div class="security-notice" style="border:none;">
+                        <a href="#" class="privacy-link">Privacy Policy</a> | <a href="#" class="privacy-link">Terms of
+                            Use</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="overlay-container">
+                <div class="overlay">
+                    <div class="overlay-panel overlay-left">
+                        <h1>Citizen?</h1>
+                        <p>Access birth certificates, tax payments, and register complaints.</p>
+                        <button class="btn-ghost" id="signIn">Citizen Login</button>
+                    </div>
+                    <div class="overlay-panel overlay-right">
+                        <h1>Official?</h1>
+                        <p>Restricted access for Municipal Corporation Administration & System Managers.</p>
+                        <button class="btn-ghost" id="signUp">Official Login</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- HOW TO BOOK INSTRUCTIONS -->
+    <section style="background:white;padding:40px 20px;border-top:1px solid #e2e8f0;">
+        <div style="max-width:900px;margin:0 auto;">
+            <div style="text-align:center;margin-bottom:30px;">
+                <h2 style="font-size:1.6rem;font-weight:700;color:#1e3c72;margin-bottom:8px;"><i
+                        class="fas fa-info-circle" style="color:#2563eb;margin-right:8px;"></i>How to Book an
+                    Appointment</h2>
+                <p style="color:#666;font-size:0.95rem;">Follow these simple steps to book your appointment with the
+                    Municipal Commissioner</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;">
+                <div
+                    style="text-align:center;padding:25px 15px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;border:1px solid #bfdbfe;">
+                    <div
+                        style="width:52px;height:52px;background:#2563eb;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;margin:0 auto 15px;">
+                        1</div>
+                    <i class="fas fa-user-plus"
+                        style="font-size:1.8rem;color:#2563eb;margin-bottom:10px;display:block;"></i>
+                    <h4 style="font-weight:600;margin-bottom:6px;color:#1e40af;">Register</h4>
+                    <p style="font-size:0.82rem;color:#555;">Create a new citizen account with your mobile number</p>
+                </div>
+                <div
+                    style="text-align:center;padding:25px 15px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:16px;border:1px solid #bbf7d0;">
+                    <div
+                        style="width:52px;height:52px;background:#16a34a;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;margin:0 auto 15px;">
+                        2</div>
+                    <i class="fas fa-sign-in-alt"
+                        style="font-size:1.8rem;color:#16a34a;margin-bottom:10px;display:block;"></i>
+                    <h4 style="font-weight:600;margin-bottom:6px;color:#166534;">Login</h4>
+                    <p style="font-size:0.82rem;color:#555;">Login to your citizen account using mobile number &amp;
+                        password</p>
+                </div>
+                <div
+                    style="text-align:center;padding:25px 15px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border-radius:16px;border:1px solid #fde68a;">
+                    <div
+                        style="width:52px;height:52px;background:#d97706;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;margin:0 auto 15px;">
+                        3</div>
+                    <i class="fas fa-calendar-plus"
+                        style="font-size:1.8rem;color:#d97706;margin-bottom:10px;display:block;"></i>
+                    <h4 style="font-weight:600;margin-bottom:6px;color:#92400e;">Book Appointment</h4>
+                    <p style="font-size:0.82rem;color:#555;">Fill in the booking form with group details and take a live
+                        photo</p>
+                </div>
+                <div
+                    style="text-align:center;padding:25px 15px;background:linear-gradient(135deg,#fdf4ff,#f3e8ff);border-radius:16px;border:1px solid #e9d5ff;">
+                    <div
+                        style="width:52px;height:52px;background:#9333ea;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;margin:0 auto 15px;">
+                        4</div>
+                    <i class="fas fa-hourglass-half"
+                        style="font-size:1.8rem;color:#9333ea;margin-bottom:10px;display:block;"></i>
+                    <h4 style="font-weight:600;margin-bottom:6px;color:#6b21a8;">Wait for Confirmation</h4>
+                    <p style="font-size:0.82rem;color:#555;">PA reviews your request and sends a confirmation or
+                        reschedule notice</p>
+                </div>
+            </div>
+            <div
+                style="margin-top:25px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:15px 20px;display:flex;align-items:center;gap:12px;">
+                <i class="fas fa-lightbulb" style="color:#0ea5e9;font-size:1.3rem;"></i>
+                <p style="font-size:0.9rem;color:#0c4a6e;margin:0;"><strong>Tip:</strong> Groups of multiple persons can
+                    be booked by a single leader. Only the leader's Aadhaar is required. Bring all member names and
+                    arrive 15 minutes early.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer role="contentinfo" style="background:#1e3c72;color:white;text-align:center;padding:20px;font-size:14px;">
+        <p>&copy; 2026 Amravati Municipal Corporation | Digital India | Smart City Mission</p>
+    </footer>
+
+    <script>
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+
+        signUpButton.addEventListener('click', () => {
+            container.classList.add("right-panel-active");
+            setTimeout(() => document.getElementById('officialRole').focus(), 600);
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove("right-panel-active");
+            setTimeout(() => document.getElementById('citizenMobile').focus(), 600);
+        });
+
+        const setError = (elementId, show) => {
+            const el = document.getElementById(elementId);
+            if (show) el.classList.add('visible');
+            else el.classList.remove('visible');
+        };
+
+        const setInvalidClass = (input, isInvalid) => {
+            if (isInvalid) input.classList.add('invalid');
+            else input.classList.remove('invalid');
+        };
+
+        // --- CITIZEN VALIDATION ---
+        const citMobile = document.getElementById('citizenMobile');
+        const citPass = document.getElementById('citizenPass');
+        const btnCitizen = document.getElementById('btnCitizen');
+
+        function validateCitizen() {
+            const val = citMobile.value.trim();
+            const pass = citPass.value.trim();
+
+            const isMobile = /^\d{10}$/.test(val);
+            const isAadhaar = /^\d{12}$/.test(val);
+            const isIdValid = isMobile || isAadhaar;
+            const isPassValid = pass.length >= 6;
+
+            if (val.length > 0) {
+                setError('err-mobile', !isIdValid);
+                setInvalidClass(citMobile, !isIdValid);
+            } else {
+                setError('err-mobile', false);
+                setInvalidClass(citMobile, false);
+            }
+
+            if (pass.length > 0) {
+                setError('err-cit-pass', !isPassValid);
+                setInvalidClass(citPass, !isPassValid);
+            } else {
+                setError('err-cit-pass', false);
+                setInvalidClass(citPass, false);
+            }
+
+            btnCitizen.disabled = !(isIdValid && isPassValid);
+        }
+
+        citMobile.addEventListener('input', validateCitizen);
+        citPass.addEventListener('input', validateCitizen);
+
+        // --- CITIZEN SUBMIT HANDLER ---
+        document.getElementById('citizenForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (btnCitizen.disabled) return;
+
+            const mobile = citMobile.value.trim();
+            const password = citPass.value.trim();
+
+            btnCitizen.disabled = true;
+            btnCitizen.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+
+            fetch('/citizen-login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    mobile: mobile,
+                    password: password
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/people-dashboard';
+                    } else {
+                        btnCitizen.disabled = false;
+                        btnCitizen.innerHTML = 'Login as Citizen';
+                        alert('Login failed: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    btnCitizen.disabled = false;
+                    btnCitizen.innerHTML = 'Login as Citizen';
+                    alert('Login error. Please try again.');
+                });
+        });
+
+        // --- OFFICIAL VALIDATION ---
+        const offRole = document.getElementById('officialRole');
+        const offId = document.getElementById('officialId');
+        const offPass = document.getElementById('officialPass');
+        const btnOfficial = document.getElementById('btnOfficial');
+
+        function validateOfficial() {
+            const role = offRole.value;
+            const id = offId.value.trim();
+            const pass = offPass.value.trim();
+
+            const isRoleValid = role !== "";
+            const isIdValid = id.length > 0;
+            const isPassValid = pass.length >= 4;
+
+            setInvalidClass(offRole, !isRoleValid && role !== "");
+
+            if (id.length > 0) {
+                setError('err-id', !isIdValid);
+                setInvalidClass(offId, !isIdValid);
+            } else {
+                setError('err-id', false);
+                setInvalidClass(offId, false);
+            }
+
+            if (pass.length > 0) {
+                setError('err-off-pass', !isPassValid);
+                setInvalidClass(offPass, !isPassValid);
+            } else {
+                setError('err-off-pass', false);
+                setInvalidClass(offPass, false);
+            }
+
+            btnOfficial.disabled = !(isRoleValid && isIdValid && isPassValid);
+        }
+
+        offRole.addEventListener('change', validateOfficial);
+        offId.addEventListener('input', validateOfficial);
+        offPass.addEventListener('input', validateOfficial);
+
+        // --- OFFICIAL LOGIN HANDLER (CONNECTED TO DATABASE) ---
+        document.getElementById('officialForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (btnOfficial.disabled) return;
+
+            const role = offRole.value;
+            const empId = offId.value.trim();
+            const password = offPass.value.trim();
+
+            if (!role) {
+                alert("Please select a designation.");
+                return;
+            }
+
+            btnOfficial.disabled = true;
+            btnOfficial.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+            fetch('/official-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    role: role,
+                    emp_id: empId,
+                    password: password
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect;
+                    } else {
+                        alert("Login Failed: " + data.message);
+                        btnOfficial.disabled = false;
+                        btnOfficial.innerHTML = 'Login as Official';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Server Error. Check console.");
+                    btnOfficial.disabled = false;
+                    btnOfficial.innerHTML = 'Login as Official';
+                });
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citizen Registration - AMC</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .register-container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      margin: 30px auto;
+      text-align: center;
+    }
+
+    .register-container h2 {
+      color: #2563eb;
+      margin-bottom: 10px;
+    }
+
+    .register-container p {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      text-align: left;
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    .btn-submit:hover {
+      background: #1d4ed8;
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+      text-decoration: none;
+    }
+
+    .back-link a {
+      color: #2563eb;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+
+    .error-text {
+      color: #dc2626;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .error-text.show {
+      display: block;
+    }
+
+    .success-msg, .error-msg {
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .success-msg {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    .error-msg {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    /* --- NAVBAR --- */
+    .navbar {
+        background: #2563eb;
+        padding: 15px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .navbar h2 {
+        color: white;
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .navbar ul {
+        list-style: none;
+        display: flex;
+        gap: 30px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .navbar ul li a {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 15px;
+        transition: 0.3s;
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+
+    .navbar ul li a:hover,
+    .navbar ul li a:focus {
+        color: #ffd700;
+        outline: 2px solid #ffd700;
+        outline-offset: 2px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar" role="navigation" aria-label="Main Navigation">
+    <h2>AMC Portal</h2>
+    <ul>
+      <li><a href="{{ url_for('home') }}">Home</a></li>
+      <li><a href="{{ url_for('about') }}">About</a></li>
+      <li><a href="{{ url_for('services') }}">Services</a></li>
+      <li><a href="{{ url_for('contact') }}">Contact</a></li>
+      <li><a href="{{ url_for('feedback') }}">Feedback</a></li>
+    </ul>
+  </nav>
+
+  <div class="register-container">
+    <h2>Create Account</h2>
+    <p>Register to access AMC Citizen Services</p>
+
+    <!-- Flash messages from backend -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="{{ category }}-msg">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('citizen_register') }}">
+      <div class="input-group">
+        <label>Full Name *</label>
+        <input type="text" name="name" required placeholder="Enter full name">
+      </div>
+
+      <div class="input-group">
+        <label>Email Address *</label>
+        <input type="email" name="email" required placeholder="Enter email">
+      </div>
+
+      <div class="input-group">
+        <label>Mobile Number *</label>
+        <input type="tel" name="mobile" id="mobile" required placeholder="10-digit mobile number" pattern="[0-9]{10}">
+        <div class="error-text" id="mobileError">Mobile number must be exactly 10 digits</div>
+      </div>
+
+      <div class="input-group">
+        <label>Address</label>
+        <input type="text" name="address" placeholder="Enter your address">
+      </div>
+
+      <div class="input-group">
+        <label>Password *</label>
+        <input type="password" name="password" id="password" required placeholder="Minimum 6 characters">
+      </div>
+
+      <div class="input-group">
+        <label>Confirm Password *</label>
+        <input type="password" name="confirm_password" id="confirm_password" required placeholder="Re-enter password">
+        <div class="error-text" id="passError">Passwords do not match</div>
+      </div>
+
+      <button type="submit" class="btn-submit">Register</button>
+    </form>
+
+    <div class="back-link">
+      Already have an account? <a href="{{ url_for('home') }}">Login here</a>
+    </div>
+  </div>
+
+  <script>
+    // Client-side validation
+    const form = document.querySelector('form');
+    const mobileInput = document.getElementById('mobile');
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirm_password');
+    const mobileError = document.getElementById('mobileError');
+    const passError = document.getElementById('passError');
+
+    function validateMobile() {
+      const val = mobileInput.value.trim();
+      const isValid = /^\d{10}$/.test(val);
+      if (val && !isValid) {
+        mobileError.classList.add('show');
+        return false;
+      } else {
+        mobileError.classList.remove('show');
+        return true;
+      }
+    }
+
+    function validatePasswordMatch() {
+      const pass = passwordInput.value;
+      const confirm = confirmInput.value;
+      const isMatch = pass === confirm;
+      if (confirm && !isMatch) {
+        passError.classList.add('show');
+        return false;
+      } else {
+        passError.classList.remove('show');
+        return true;
+      }
+    }
+
+    mobileInput.addEventListener('input', validateMobile);
+    confirmInput.addEventListener('input', validatePasswordMatch);
+    passwordInput.addEventListener('input', validatePasswordMatch);
+
+    form.addEventListener('submit', function(e) {
+      if (!validateMobile()) {
+        e.preventDefault();
+        alert('Please enter a valid 10-digit mobile number.');
+        return;
+      }
+      if (!validatePasswordMatch()) {
+        e.preventDefault();
+        alert('Passwords do not match.');
+        return;
+      }
+      if (passwordInput.value.length < 6) {
+        e.preventDefault();
+        alert('Password must be at least 6 characters long.');
+        return;
+      }
+      // If all valid, form submits normally to backend
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMC - Commissioner Dashboard</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* --- Your existing styles (unchanged) --- */
+        :root {
+            --bg-color: #f8f9fa;
+            --primary-blue: #4361ee;
+            --text-dark: #333;
+            --sidebar-width: 260px;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --border-radius: 12px;
+            --status-high-bg: #fee2e2;
+            --status-high-text: #dc2626;
+            --status-med-bg: #fef3c7;
+            --status-med-text: #d97706;
+            --status-low-bg: #dcfce7;
+            --status-low-text: #16a34a;
+            --status-prog-bg: #e0e7ff;
+            --status-prog-text: #3730a3;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { display: flex; background-color: var(--bg-color); height: 100vh; overflow: hidden; }
+        .sidebar { width: var(--sidebar-width); background: white; display: flex; flex-direction: column; padding: 25px; border-right: 1px solid #eee; flex-shrink: 0; }
+        .brand { font-size: 1.5rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .sidebar-profile { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #f0f0f0; }
+        .sidebar-profile-img { width: 90px; height: 90px; border-radius: 50%; background-color: var(--primary-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; margin: 0 auto 10px; object-fit: cover; border: 3px solid #e0e7ff; }
+        .sidebar-profile-name { font-weight: 600; font-size: 1.1rem; color: var(--text-dark); }
+        .sidebar-profile-role { font-size: 0.8rem; color: #777; }
+        .nav-btn { width: 100%; display: flex; align-items: center; gap: 15px; padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; border: none; background: none; color: #666; font-size: 1rem; cursor: pointer; transition: 0.2s; text-align: left; }
+        .nav-btn:hover, .nav-btn.active { background-color: #eff6ff; color: var(--primary-blue); font-weight: 600; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; height: 70px; }
+        .user-profile { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .avatar { width: 40px; height: 40px; background: var(--primary-blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; object-fit: cover; }
+        .dashboard-body { padding: 30px; overflow-y: auto; flex: 1; }
+        .section-view { display: none; animation: fadeIn 0.3s ease; }
+        .section-view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 25px; border-radius: var(--border-radius); box-shadow: var(--card-shadow); cursor: pointer; transition: transform 0.2s; border-left: 5px solid transparent; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card h3 { font-size: 2rem; margin: 5px 0; }
+        .stat-card p { font-size: 0.9rem; font-weight: 500; opacity: 0.8; }
+        .sc-blue { border-left-color: #3b82f6; background: #eff6ff; color: #1e40af; }
+        .sc-green { border-left-color: #22c55e; background: #f0fdf4; color: #166534; }
+        .sc-red { border-left-color: #ef4444; background: #fef2f2; color: #991b1b; }
+        .sc-yellow { border-left-color: #f59e0b; background: #fffbeb; color: #92400e; }
+        .list-container { background: white; border-radius: var(--border-radius); padding: 5px; box-shadow: var(--card-shadow); margin-bottom: 30px; }
+        .list-header { padding: 15px 20px; border-bottom: 1px solid #eee; font-weight: 600; font-size: 1.1rem; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f9f9f9; transition: 0.2s; cursor: pointer; }
+        .list-item:hover { background: #f8f9fa; }
+        .li-info strong { display: block; color: var(--text-dark); }
+        .li-info span { font-size: 0.85rem; color: #777; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .b-high { background: var(--status-high-bg); color: var(--status-high-text); }
+        .b-med { background: var(--status-med-bg); color: var(--status-med-text); }
+        .b-low { background: var(--status-low-bg); color: var(--status-low-text); }
+        .b-prog { background: var(--status-prog-bg); color: var(--status-prog-text); }
+        .btn-forward-icon { background: none; border: none; cursor: pointer; color: #9ca3af; padding: 5px; margin-left: 10px; transition: 0.2s; font-size: 1.1rem; }
+        .btn-forward-icon:hover { color: var(--primary-blue); transform: scale(1.1); }
+        .list-actions { display: flex; align-items: center; gap: 5px; }
+        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .action-btn { width: 100%; padding: 15px; background: white; border: 1px solid #eee; border-radius: 8px; text-align: left; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: 0.2s; box-shadow: var(--card-shadow); }
+        .action-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); transform: scale(1.02); }
+        .dept-select-container { background: white; padding: 20px; border-radius: var(--border-radius); margin-bottom: 20px; box-shadow: var(--card-shadow); display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
+        .control-group { flex: 1; min-width: 150px; }
+        .control-group label { display: block; font-weight: 600; margin-bottom: 5px; }
+        .dept-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+        .stats-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .chart-box { background: white; padding: 20px; border-radius: var(--border-radius); box-shadow: var(--card-shadow); display: flex; align-items: center; justify-content: center; }
+        .text-stats-box { background: white; padding: 20px; border-radius: var(--border-radius); box-shadow: var(--card-shadow); display: flex; flex-direction: column; justify-content: center; gap: 15px; }
+        .stat-row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .stat-row span:last-child { font-weight: bold; color: var(--primary-blue); }
+        .settings-section { background: white; padding: 25px; border-radius: var(--border-radius); box-shadow: var(--card-shadow); margin-bottom: 20px; }
+        .settings-section h3 { margin-bottom: 15px; font-size: 1.1rem; color: var(--text-dark); border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+        .setting-info h4 { font-size: 0.95rem; margin-bottom: 4px; }
+        .setting-info p { font-size: 0.8rem; color: #777; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked+.slider { background-color: var(--primary-blue); }
+        input:checked+.slider:before { transform: translateX(24px); }
+        .profile-edit { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .profile-edit-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; background-color: var(--primary-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; }
+        .btn-blue { background: var(--primary-blue); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .btn-blue:hover { background: #324bc7; }
+        .btn-outline { background: white; border: 1px solid #ddd; padding: 8px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .btn-outline:hover { background: #f8f9fa; }
+        .form-group { margin-bottom: 15px; flex: 1; min-width: 250px; }
+        .form-label { display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 5px; color: #555; }
+        .form-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; outline: none; }
+        .form-input:focus { border-color: var(--primary-blue); }
+        .pass-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+        .modal-header { font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .close-modal { cursor: pointer; color: #999; font-size: 1.3rem; }
+        .detail-row { margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; }
+        .detail-label { font-weight: 600; color: #475569; width: 130px; display: inline-block; }
+        .detail-value { color: #1e293b; }
+        .member-list { background: #f8fafc; padding: 8px; border-radius: 6px; margin-top: 5px; font-size: 0.9rem; }
+        .modal-label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem; color: #555; }
+        .modal-select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; margin-bottom: 20px; outline: none; }
+        .pdf-header { display: none; text-align: center; margin-bottom: 20px; }
+        .filter-bar { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+        .date-filter { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .date-filter label { font-weight: 500; font-size: 0.85rem; }
+        .date-filter input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 0.85rem; }
+        .clear-filter { background: #f1f5f9; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        .clear-filter:hover { background: #e2e8f0; }
+        /* Improved date range row */
+        .date-range-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            background: #f9fafb;
+            padding: 8px 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .date-range-group label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #2c3e66;
+        }
+        .date-range-group input {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 0.85rem;
+        }
+        .apply-date-btn, .clear-date-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .clear-date-btn {
+            background: #9ca3af;
+        }
+        .apply-date-btn:hover { background: #2a4bc2; }
+        .clear-date-btn:hover { background: #6b7280; }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="brand"><i class="fas fa-building"></i> AMC Portal</div>
+        <div class="sidebar-profile">
+            <img src="{{ url_for('static', filename='images/avatar.png') }}" alt="Profile" class="sidebar-profile-img">
+            <div class="sidebar-profile-name">IAS Saumya Sharma Chandak</div>
+            <div class="sidebar-profile-role">Municipal Commissioner</div>
+        </div>
+        <nav>
+            <button class="nav-btn active" onclick="switchTab('overview')"><i class="fas fa-th-large"></i> Dashboard</button>
+            <button class="nav-btn" onclick="switchTab('statistics')"><i class="fas fa-chart-pie"></i> Statistics</button>
+            <button class="nav-btn" onclick="switchTab('token-status')"><i class="fas fa-ticket-alt"></i> Token Status</button>
+            <button class="nav-btn" onclick="switchTab('settings')"><i class="fas fa-cog"></i> Settings</button>
+        </nav>
+        <div style="margin-top: auto;">
+            <button class="nav-btn" style="color: #ef4444;" onclick="window.location.href='{{ url_for('logout') }}'"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h2>Commissioner Dashboard</h2>
+            <div class="user-profile" onclick="switchTab('settings')">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; font-size: 0.9rem;">IAS Saumya Sharma Chandak</div>
+                    <div style="font-size: 0.75rem; color: #777;">Municipal Commissioner</div>
+                </div>
+                <img src="" alt="Profile" class="avatar" id="header-profile-img">
+            </div>
+        </header>
+
+        <div class="dashboard-body">
+
+            <!-- OVERVIEW TAB -->
+            <div id="overview" class="section-view active">
+                <div class="stats-row">
+                    <div class="stat-card sc-blue" onclick="filterList('active')">
+                        <p>Active Appointments</p>
+                        <h3 id="stat-active">0</h3>
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-card sc-green" onclick="filterList('accepted')">
+                        <p>Approved</p>
+                        <h3 id="stat-accepted">0</h3>
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-card sc-red" onclick="filterList('rejected')">
+                        <p>Rejected</p>
+                        <h3 id="stat-rejected">0</h3>
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-card sc-yellow" onclick="filterList('rescheduled')">
+                        <p>Rescheduled</p>
+                        <h3 id="stat-rescheduled">0</h3>
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                </div>
+
+                <div class="list-container">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <div class="list-header" id="list-title">Active Appointments</div>
+                        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                            <div class="filter-bar">
+                                <div class="date-filter">
+                                    <label><i class="fas fa-calendar-alt"></i> Filter by Date:</label>
+                                    <input type="date" id="filter-date" onchange="applyFilters()">
+                                </div>
+                                <button class="clear-filter" onclick="clearDateFilter()"><i class="fas fa-times"></i> Clear Date</button>
+                                <div style="position:relative;">
+                                    <i class="fas fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#999;font-size:13px;"></i>
+                                    <input type="text" id="search-bar" placeholder="Search by token or name..." oninput="applyFilters()" style="padding:8px 12px 8px 32px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;width:200px;outline:none;">
+                                </div>
+                                <select id="status-filter" onchange="applyFilters()" style="padding:8px 12px;border-radius:8px;border:1px solid #d1d5db;">
+                                    <option value="all">All Statuses</option>
+                                    <option value="active">Active (Pending/Confirmed/Rescheduled)</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                                <label style="font-size:0.9rem; color:#555; display:flex; align-items:center; gap:8px;">
+                                    <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)"> <span>Select All</span>
+                                </label>
+                            </div>
+                            <button class="action-btn" id="btn-mark-selected" onclick="markSelectedCompleted()" disabled style="background:#22c55e; color:white;"><i class="fas fa-check" style="margin-right:8px;"></i>Mark Selected Completed</button>
+                        </div>
+                    </div>
+                    <div id="dynamic-list"></div>
+                </div>
+
+                <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Quick Actions</h3>
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="loadRealData()"><i class="fas fa-sync-alt" style="color: #10b981;"></i><div><strong>Refresh Data</strong><br><span style="font-size: 0.8rem; color:#777;">Update from database</span></div></button>
+                    <button class="action-btn" onclick="generateReport()"><i class="fas fa-file-pdf" style="color: #4361ee;"></i><div><strong>Generate Monthly Report</strong><br><span style="font-size: 0.8rem; color:#777;">Download statistics PDF</span></div></button>
+                    <button class="action-btn" onclick="openMeetingModal()"><i class="fas fa-users" style="color: #d97706;"></i><div><strong>Schedule Staff Meeting</strong><br><span style="font-size: 0.8rem; color:#777;">Notify Dept Heads</span></div></button>
+                </div>
+            </div>
+
+            <!-- STATISTICS TAB with fixed date range layout -->
+            <div id="statistics" class="section-view">
+                <div id="report-container">
+                    <div class="pdf-header"><h2>Amravati Municipal Corporation</h2><p>Official Monthly Statistics Report</p><hr></div>
+                    
+                    <!-- Filter Row: Department + Date Range + Download -->
+                    <div class="dept-select-container" data-html2canvas-ignore="true">
+                        <div class="control-group">
+                            <label><i class="fas fa-building"></i> Department Filter:</label>
+                            <select class="dept-select" id="statsDeptFilter" onchange="updateStatisticsWithDeptFilter()">
+                                <option value="all">📊 All Departments</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label><i class="fas fa-chart-pie"></i> Chart Type:</label>
+                            <select class="dept-select" id="chartTypeSelect" onchange="updateStatisticsWithDeptFilter()">
+                                <option value="bar">Bar Chart</option>
+                                <option value="line">Line Graph</option>
+                                <option value="pie">Pie Chart</option>
+                                <option value="doughnut">Doughnut Chart</option>
+                                <option value="polarArea">Polar Area</option>
+                            </select>
+                        </div>
+                        <div class="control-group" style="min-width: 320px;">
+                            <label><i class="fas fa-calendar-range"></i> Date Range:</label>
+                            <div class="date-range-group">
+                                <input type="date" id="statsDateFrom" placeholder="From">
+                                <span>→</span>
+                                <input type="date" id="statsDateTo" placeholder="To">
+                                <button class="apply-date-btn" onclick="applyDateRangeFilter()">Apply</button>
+                                <button class="clear-date-btn" onclick="clearDateRangeFilter()">Clear</button>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>&nbsp;</label>
+                            <button class="btn-blue" style="width:100%;" onclick="downloadStatisticsCSV()"><i class="fas fa-download"></i> Download Report (CSV)</button>
+                        </div>
+                    </div>
+
+                    <!-- Stats overview grid - Avg Decision Time removed -->
+                    <div class="stats-detail-grid">
+                        <div class="text-stats-box">
+                            <h3 id="stat-dept-name">Commissioner Analytics Snapshot</h3>
+                            <div class="stat-row"><span>Approval Rate</span><span id="stat-approval-rate">0%</span></div>
+                            <div class="stat-row"><span>Rejection Rate</span><span id="stat-rejection-rate">0%</span></div>
+                            <div class="stat-row"><span>Pending Age 0-1 Days</span><span id="stat-aging-01">0</span></div>
+                            <div class="stat-row"><span>Pending Age 2-3 Days</span><span id="stat-aging-23">0</span></div>
+                            <div class="stat-row" style="border:none;"><span>Pending Age 4+ Days</span><span id="stat-aging-4p">0</span></div>
+                        </div>
+                        <div class="chart-box"><canvas id="deptChart"></canvas></div>
+                    </div>
+
+                    <!-- Department Summary (full width) -->
+                    <div style="margin-top:20px;">
+                        <div class="text-stats-box">
+                            <h3>Department Summary</h3>
+                            <div id="dept-summary-list" style="font-size:13px; max-height:250px; overflow-y:auto;">
+                                <!-- populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOKEN STATUS SECTION (unchanged) -->
+            <div id="token-status" class="section-view">
+                <h2 style="margin-bottom:20px;font-weight:700;color:#1e3c72;"><i class="fas fa-ticket-alt" style="margin-right:8px;color:#2563eb;"></i>Token Status Overview</h2>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="background:linear-gradient(135deg,#16a34a,#15803d);padding:16px 20px;color:white;"><h3 style="margin:0;font-size:1rem;"><i class="fas fa-check-circle" style="margin-right:8px;"></i>Approved / Completed Tokens</h3></div>
+                        <div id="confirmed-tokens-list" style="padding:15px;max-height:400px;overflow-y:auto;"><div style="text-align:center;color:#9ca3af;padding:20px;">Loading...</div></div>
+                    </div>
+                    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="background:linear-gradient(135deg,#d97706,#b45309);padding:16px 20px;color:white;"><h3 style="margin:0;font-size:1rem;"><i class="fas fa-calendar-alt" style="margin-right:8px;"></i>Rescheduled Tokens</h3></div>
+                        <div id="rescheduled-tokens-list" style="padding:15px;max-height:400px;overflow-y:auto;"><div style="text-align:center;color:#9ca3af;padding:20px;">Loading...</div></div>
+                    </div>
+                    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);padding:16px 20px;color:white;"><h3 style="margin:0;font-size:1rem;"><i class="fas fa-hourglass-half" style="margin-right:8px;"></i>Pending Tokens</h3></div>
+                        <div id="pending-tokens-list" style="padding:15px;max-height:400px;overflow-y:auto;"><div style="text-align:center;color:#9ca3af;padding:20px;">Loading...</div></div>
+                    </div>
+                    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="background:linear-gradient(135deg,#ef4444,#b91c1c);padding:16px 20px;color:white;"><h3 style="margin:0;font-size:1rem;"><i class="fas fa-times-circle" style="margin-right:8px;"></i>Rejected Tokens</h3></div>
+                        <div id="rejected-tokens-list" style="padding:15px;max-height:400px;overflow-y:auto;"><div style="text-align:center;color:#9ca3af;padding:20px;">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS TAB (unchanged) -->
+            <div id="settings" class="section-view">
+                <div class="settings-section">
+                    <h3>Personal Information</h3>
+                    <div class="profile-edit">
+                        <img src="" alt="Profile" class="profile-edit-img" id="settings-profile-img">
+                        <div style="flex-grow: 1;">
+                            <p style="margin-bottom:10px; font-weight:600;">IAS Saumya Sharma Chandak</p>
+                            <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                                <input type="file" id="file-input" style="display: none;" accept="image/*" onchange="handleProfileUpload(this)">
+                                <button class="btn-blue" onclick="document.getElementById('file-input').click()">Change Picture</button>
+                                <button class="btn-outline" style="color:red; border-color:red;" onclick="removeProfilePicture()">Remove</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Official Mobile Number</label>
+                            <div style="display:flex; gap: 10px;"><input type="text" id="settings-mobile" class="form-input" placeholder="+91 98765 43210"><button class="btn-blue" onclick="saveMobileNumber()">Save</button></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3><i class="fas fa-lock"></i> Security Settings</h3>
+                    <h4 style="margin-bottom: 10px;">Change Password</h4>
+                    <div class="pass-grid">
+                        <div class="form-group" style="grid-column: span 2;"><label class="form-label">Current Password</label><input type="password" id="curr-pass" class="form-input"></div>
+                        <div class="form-group"><label class="form-label">New Password</label><input type="password" id="new-pass" class="form-input"></div>
+                        <div class="form-group"><label class="form-label">Confirm New Password</label><input type="password" id="conf-pass" class="form-input"></div>
+                    </div>
+                    <div style="text-align: right;"><button class="btn-blue" onclick="changePassword()">Update Password</button></div>
+                </div>
+                <div class="settings-section">
+                    <h3>Notification Preferences</h3>
+                    <div class="setting-item"><div class="setting-info"><h4>Email Notifications</h4><p>Receive updates via email</p></div><label class="switch"><input type="checkbox" id="email-notifications"><span class="slider"></span></label></div>
+                    <div class="setting-item"><div class="setting-info"><h4>SMS Notifications</h4><p>Receive urgent updates via SMS</p></div><label class="switch"><input type="checkbox" id="sms-notifications"><span class="slider"></span></label></div>
+                    <div class="setting-item"><div class="setting-info"><h4>Daily Reports</h4><p>Receive reports at 9:00 AM</p></div><label class="switch"><input type="checkbox" id="daily-reports"><span class="slider"></span></label></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODALS (unchanged) -->
+    <div id="rescheduleModal" class="modal" style="display:none;">
+        <div class="modal-content" style="width:480px;">
+            <div class="modal-header"><span>Emergency Reschedule</span><span onclick="closeRescheduleModal()" style="cursor:pointer;">&times;</span></div>
+            <div style="margin-bottom:15px;"><label>New Date</label><input type="date" id="reschedule-date" style="width:100%;padding:10px;border-radius:8px;"></div>
+            <div style="margin-bottom:15px;"><label>New Time Slot</label><select id="reschedule-time" style="width:100%;padding:10px;border-radius:8px;">
+                <option>10:00 AM - 11:00 AM</option><option>11:00 AM - 12:00 PM</option><option>12:00 PM - 01:00 PM</option>
+                <option>02:00 PM - 03:00 PM</option><option>03:00 PM - 04:00 PM</option><option>04:00 PM - 05:00 PM</option>
+            </select></div>
+            <div style="margin-bottom:20px;"><label>Reason for Rescheduling</label><textarea id="reschedule-reason" rows="3" style="width:100%;padding:10px;border-radius:8px;"></textarea></div>
+            <div style="display:flex;gap:10px;"><button onclick="closeRescheduleModal()" style="flex:1;padding:12px;background:white;border:1px solid #ddd;">Cancel</button><button onclick="confirmReschedule()" style="flex:1;padding:12px;background:#d97706;color:white;">Confirm</button></div>
+        </div>
+    </div>
+    <div id="meetingModal" class="modal" style="display:none;">
+        <div class="modal-content"><div class="modal-header"><span>Schedule Staff Meeting</span><span onclick="closeMeetingModal()" class="close-modal">&times;</span></div>
+            <div style="margin-bottom: 15px;"><label class="modal-label">Select Participants:</label><select id="meetingDept" class="modal-select"><option value="All Departments">All Departments</option><option value="Water Dept">Water Dept</option><option value="Tax Dept">Tax Dept</option><option value="Health Dept">Health Dept</option></select></div>
+            <div style="margin-bottom: 20px;"><label class="modal-label">Date & Time:</label><input type="datetime-local" id="meetingDateTime" class="modal-select"></div>
+            <button class="btn-blue" style="width: 100%;" onclick="confirmMeeting()">Schedule Meeting</button>
+        </div>
+    </div>
+    <div id="forwardModal" class="modal">
+        <div class="modal-content"><div class="modal-header"><span>Forward to Department</span><span onclick="closeForwardModal()" class="close-modal">&times;</span></div>
+            <p style="margin-bottom: 15px;">Select department for <strong><span id="forward-item-name"></span></strong>.</p>
+            <label class="modal-label">Select Department:</label>
+            <select id="forwardDeptSelect" class="modal-select">
+                <option value="">-- Choose Department --</option>
+                <option value="Deputy Commissioner">Deputy Commissioner</option><option value="Assistant Commissioner">Assistant Commissioner</option>
+                <option value="General Administration">General Administration (GAD)</option><option value="Public Works Dept (PWD)">Public Works Dept</option>
+                <option value="Water Supply Dept">Water Supply Department</option><option value="Public Health & Sanitation">Public Health & Sanitation</option>
+                <option value="Town Planning">Town Planning & Development</option><option value="Property Tax">Property Tax & Assessment</option>
+                <option value="Estate Dept">Estate Department</option><option value="Fire & Emergency">Fire & Emergency Services</option>
+                <option value="Education Dept">Education Department</option><option value="Encroachment Dept">Encroachment Department</option>
+                <option value="LBT Dept">LBT (Local Body Tax)</option><option value="Garden Dept">Garden & Tree Authority</option>
+            </select>
+            <div style="display: flex; gap: 10px;"><button class="btn-outline" style="flex:1;" onclick="closeForwardModal()">Cancel</button><button class="btn-blue" style="flex:1;" onclick="confirmForward()">Confirm Forward</button></div>
+        </div>
+    </div>
+    <div id="detailModal" class="modal">
+        <div class="modal-content"><div class="modal-header"><span>Appointment Details</span><span class="close-modal" onclick="closeDetailModal()">&times;</span></div><div id="detail-content"></div></div>
+    </div>
+
+    <script>
+        let appointments = [], currentRescheduleId = null, currentForwardId = null, myChart = null, analyticsPayload = null;
+        let currentDeptFilter = "all";
+        let currentDateFrom = null, currentDateTo = null;
+
+        function filterByDateRange(apptList) {
+            if (!currentDateFrom && !currentDateTo) return apptList;
+            return apptList.filter(a => {
+                const appDate = a.date;
+                if (currentDateFrom && appDate < currentDateFrom) return false;
+                if (currentDateTo && appDate > currentDateTo) return false;
+                return true;
+            });
+        }
+
+        function populateDepartmentFilter() {
+            const filteredAll = filterByDateRange(appointments);
+            const deptSet = new Set();
+            filteredAll.forEach(a => { if(a.department) deptSet.add(a.department); });
+            const select = document.getElementById('statsDeptFilter');
+            if(select) {
+                let html = '<option value="all">📊 All Departments</option>';
+                Array.from(deptSet).sort().forEach(dept => {
+                    html += `<option value="${escapeHtml(dept)}">🏛️ ${escapeHtml(dept)}</option>`;
+                });
+                select.innerHTML = html;
+                select.value = currentDeptFilter;
+            }
+        }
+
+        function computeFilteredStats(dept) {
+            let base = filterByDateRange(appointments);
+            if(dept !== 'all') {
+                base = base.filter(a => a.department === dept);
+            }
+            const total = base.length;
+            const accepted = base.filter(a => a.status === 'Confirmed' || a.status === 'Completed').length;
+            const rejected = base.filter(a => ['Rejected','Cancelled'].includes(a.status)).length;
+            const pending = base.filter(a => !['Completed','Rejected','Cancelled'].includes(a.status)).length;
+            const rescheduled = base.filter(a => a.status === 'Rescheduled').length;
+            const approvalRate = total ? (accepted / total * 100) : 0;
+            const rejectionRate = total ? (rejected / total * 100) : 0;
+            let aging01 = 0, aging23 = 0, aging4p = 0;
+            base.forEach(a => {
+                const created = a.created_at ? new Date(a.created_at) : (a.date ? new Date(a.date) : new Date());
+                const days = (new Date() - created) / (1000*60*60*24);
+                if(days <= 1) aging01++;
+                else if(days <= 3) aging23++;
+                else aging4p++;
+            });
+            return { total, accepted, rejected, pending, rescheduled, approvalRate, rejectionRate,
+                aging01, aging23, aging4p };
+        }
+
+        async function updateStatisticsWithDeptFilter() {
+            currentDeptFilter = document.getElementById('statsDeptFilter').value;
+            const stats = computeFilteredStats(currentDeptFilter);
+            document.getElementById('stat-dept-name').innerHTML = currentDeptFilter === 'all' ? 'Commissioner Analytics (All Depts)' : `Statistics: ${currentDeptFilter}`;
+            document.getElementById('stat-approval-rate').innerText = `${stats.approvalRate.toFixed(1)}%`;
+            document.getElementById('stat-rejection-rate').innerText = `${stats.rejectionRate.toFixed(1)}%`;
+            document.getElementById('stat-aging-01').innerText = stats.aging01;
+            document.getElementById('stat-aging-23').innerText = stats.aging23;
+            document.getElementById('stat-aging-4p').innerText = stats.aging4p;
+            
+            const baseForSummary = filterByDateRange(appointments);
+            const deptSummaryDiv = document.getElementById('dept-summary-list');
+            if(currentDeptFilter === 'all') {
+                const deptMap = new Map();
+                baseForSummary.forEach(a => {
+                    if(!deptMap.has(a.department)) deptMap.set(a.department, { total:0, pending:0, completed:0 });
+                    const d = deptMap.get(a.department);
+                    d.total++;
+                    if(a.status === 'Completed') d.completed++;
+                    if(!['Completed','Rejected','Cancelled'].includes(a.status)) d.pending++;
+                });
+                let summaryHtml = '<table style="width:100%; font-size:12px;"><tr><th>Dept</th><th>Total</th><th>Pending</th><th>Completed</th></tr>';
+                for(let [dept, vals] of deptMap.entries()) {
+                    summaryHtml += `<tr><td>${escapeHtml(dept.substring(0,20))}</td><td>${vals.total}</td><td>${vals.pending}</td><td>${vals.completed}</td></tr>`;
+                }
+                summaryHtml += '</table>';
+                deptSummaryDiv.innerHTML = summaryHtml;
+            } else {
+                const filteredDept = baseForSummary.filter(a => a.department === currentDeptFilter);
+                const total = filteredDept.length;
+                const accepted = filteredDept.filter(a => a.status === 'Confirmed' || a.status === 'Completed').length;
+                const rejected = filteredDept.filter(a => ['Rejected','Cancelled'].includes(a.status)).length;
+                const pending = filteredDept.filter(a => !['Completed','Rejected','Cancelled'].includes(a.status)).length;
+                deptSummaryDiv.innerHTML = `<p><strong>${escapeHtml(currentDeptFilter)}</strong><br>Total: ${total}<br>Accepted: ${accepted}<br>Rejected: ${rejected}<br>Pending: ${pending}</p>`;
+            }
+            
+            const chartType = document.getElementById('chartTypeSelect').value;
+            const ctxDept = document.getElementById('deptChart').getContext('2d');
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctxDept, {
+                type: chartType,
+                data: { labels: ['Approved','Rejected','Pending','Rescheduled'], datasets: [{ label: 'Count', data: [stats.accepted, stats.rejected, stats.pending, stats.rescheduled], backgroundColor: ['#16a34a','#ef4444','#3b82f6','#d97706'] }] },
+                options: { responsive: true }
+            });
+        }
+
+        function applyDateRangeFilter() {
+            const fromElem = document.getElementById('statsDateFrom');
+            const toElem = document.getElementById('statsDateTo');
+            currentDateFrom = fromElem.value ? fromElem.value : null;
+            currentDateTo = toElem.value ? toElem.value : null;
+            populateDepartmentFilter();
+            document.getElementById('statsDeptFilter').value = 'all';
+            currentDeptFilter = 'all';
+            updateStatisticsWithDeptFilter();
+        }
+
+        function clearDateRangeFilter() {
+            document.getElementById('statsDateFrom').value = '';
+            document.getElementById('statsDateTo').value = '';
+            currentDateFrom = null;
+            currentDateTo = null;
+            populateDepartmentFilter();
+            document.getElementById('statsDeptFilter').value = 'all';
+            currentDeptFilter = 'all';
+            updateStatisticsWithDeptFilter();
+        }
+
+        function downloadStatisticsCSV() {
+            const dept = currentDeptFilter;
+            const stats = computeFilteredStats(dept);
+            let rows = [];
+            rows.push(['Report Generated', new Date().toLocaleString()]);
+            rows.push(['Department Filter', dept === 'all' ? 'All Departments' : dept]);
+            if (currentDateFrom) rows.push(['Date From', currentDateFrom]);
+            if (currentDateTo) rows.push(['Date To', currentDateTo]);
+            rows.push([]);
+            rows.push(['Metric', 'Value']);
+            rows.push(['Total Appointments', stats.total]);
+            rows.push(['Approved/Completed', stats.accepted]);
+            rows.push(['Rejected', stats.rejected]);
+            rows.push(['Pending', stats.pending]);
+            rows.push(['Rescheduled', stats.rescheduled]);
+            rows.push(['Approval Rate (%)', stats.approvalRate.toFixed(1)]);
+            rows.push(['Rejection Rate (%)', stats.rejectionRate.toFixed(1)]);
+            rows.push(['Pending 0-1 Days', stats.aging01]);
+            rows.push(['Pending 2-3 Days', stats.aging23]);
+            rows.push(['Pending 4+ Days', stats.aging4p]);
+            
+            const csvContent = rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute('download', `statistics_${dept === 'all' ? 'all' : dept.replace(/\s/g,'_')}_${new Date().toISOString().slice(0,19)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        async function loadRealData() {
+            try {
+                const response = await fetch('/api/commissioner/stats', { credentials: 'include' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                appointments = data.appointments || [];
+                analyticsPayload = data.analytics || null;
+                const active = appointments.filter(a => !['Completed', 'Rejected', 'Cancelled'].includes(a.status)).length;
+                const accepted = appointments.filter(a => a.status === 'Confirmed' || a.status === 'Completed').length;
+                const rejected = appointments.filter(a => ['Rejected', 'Cancelled'].includes(a.status)).length;
+                const rescheduled = appointments.filter(a => a.status === 'Rescheduled').length;
+                document.getElementById('stat-active').innerText = active;
+                document.getElementById('stat-accepted').innerText = accepted;
+                document.getElementById('stat-rejected').innerText = rejected;
+                document.getElementById('stat-rescheduled').innerText = rescheduled;
+                currentDateFrom = null; currentDateTo = null;
+                document.getElementById('statsDateFrom').value = '';
+                document.getElementById('statsDateTo').value = '';
+                populateDepartmentFilter();
+                applyFilters();
+                updateStatisticsWithDeptFilter();
+            } catch (error) { console.error(error); document.getElementById('dynamic-list').innerHTML = `<div style='padding:20px;color:#d14343;'>Error loading appointments.</div>`; }
+        }
+
+        // The rest of the functions (applyFilters, renderAppointments, etc.) remain exactly as in the original dashboard
+        function applyFilters() {
+            const searchQuery = document.getElementById('search-bar').value.toLowerCase().trim();
+            const selectedDate = document.getElementById('filter-date').value;
+            const statusFilterValue = document.getElementById('status-filter').value;
+            let filtered = [...appointments];
+            if (statusFilterValue === 'active') {
+                filtered = filtered.filter(a => !['Completed', 'Rejected', 'Cancelled'].includes(a.status));
+            } else if (statusFilterValue === 'completed') {
+                filtered = filtered.filter(a => a.status === 'Completed');
+            } else if (statusFilterValue === 'rejected') {
+                filtered = filtered.filter(a => ['Rejected', 'Cancelled'].includes(a.status));
+            }
+            if (selectedDate) filtered = filtered.filter(a => a.date === selectedDate);
+            if (searchQuery) filtered = filtered.filter(a => (a.token || '').toLowerCase().includes(searchQuery) || ((a.leader_name || a.name || '')).toLowerCase().includes(searchQuery));
+            renderAppointments(filtered);
+        }
+        function clearDateFilter() { document.getElementById('filter-date').value = ''; applyFilters(); }
+        function renderAppointments(list) {
+            const listDiv = document.getElementById('dynamic-list');
+            if (!list.length) { listDiv.innerHTML = "<div style='padding:20px;color:#777;'>No appointments found.</div>"; return; }
+            listDiv.innerHTML = '';
+            list.forEach(app => {
+                const citizenName = app.leader_name || app.name || 'Unknown';
+                let badgeClass = 'b-pending';
+                if (app.status === 'Confirmed') badgeClass = 'b-prog';
+                else if (app.status === 'Completed') badgeClass = 'b-low';
+                else if (app.status === 'Rejected' || app.status === 'Cancelled') badgeClass = 'b-high';
+                else if (app.status === 'Rescheduled') badgeClass = 'b-med';
+                listDiv.innerHTML += `<div class="list-item" onclick="showAppointmentDetail(${app.id})">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <input type="checkbox" class="row-select" value="${app.id}" onchange="onRowSelectChange()" ${app.status === 'Completed' ? 'disabled' : ''} onclick="event.stopPropagation()">
+                        <div class="li-info"><strong>${escapeHtml(citizenName)}</strong><span style="color:#2563eb;font-weight:600;">Token: ${app.token}</span><br><span>${app.department || ''} - ${app.reason ? app.reason.substring(0,40) : ''}</span><span style="font-size:12px;color:#9ca3af;"> | ${app.date}</span></div>
+                    </div>
+                    <div class="list-actions" onclick="event.stopPropagation()">
+                        <span class="badge ${badgeClass}">${app.status}</span>
+                        ${app.status === 'Rescheduled' ? `<div style="font-size:0.75rem;color:#6b7280;">Reschedule: ${app.rescheduleReason || '—'}</div>` : ''}
+                        ${['Rejected','Cancelled'].includes(app.status) ? `<div style="font-size:0.75rem;color:#6b7280;">Reason: ${app.rejectionReason || '—'}</div>` : ''}
+                        <button class="btn-forward-icon" onclick="openRescheduleModal(${app.id})" title="Reschedule" style="background:#fef3c7;border:1px solid #fde68a;color:#d97706;"><i class="fas fa-calendar-alt"></i></button>
+                        <button class="btn-forward-icon" onclick="openForwardModal(${app.id}, '${escapeHtml(citizenName).replace(/'/g, "\\'")}')" title="Forward"><i class="fas fa-share-square"></i></button>
+                        <button class="btn-forward-icon" onclick="markCompleted(${app.id})" title="Mark Completed"><i class="fas fa-check"></i></button>
+                    </div>
+                </div>`;
+            });
+        }
+        function showAppointmentDetail(id) { const app = appointments.find(a => a.id === id); if (!app) return; const citizenName = app.leader_name || app.name || 'Unknown'; const memberNames = app.member_names ? app.member_names.split(',').join(', ') : 'None'; document.getElementById('detail-content').innerHTML = `<div class="detail-row"><span class="detail-label">Token:</span> <span class="detail-value">${escapeHtml(app.token)}</span></div><div class="detail-row"><span class="detail-label">Citizen:</span> <span class="detail-value">${escapeHtml(citizenName)}</span></div><div class="detail-row"><span class="detail-label">Mobile:</span> <span class="detail-value">${escapeHtml(app.mobile || 'N/A')}</span></div><div class="detail-row"><span class="detail-label">Date/Time:</span> <span class="detail-value">${escapeHtml(app.date)} @ ${escapeHtml(app.time)}</span></div><div class="detail-row"><span class="detail-label">People:</span> <span class="detail-value">${app.people_count || 1} person(s)</span></div><div class="detail-row"><span class="detail-label">Group Members:</span><div class="member-list">${escapeHtml(memberNames)}</div></div><div class="detail-row"><span class="detail-label">Purpose:</span><div class="member-list" style="background:#eff6ff;">${escapeHtml(app.reason || 'Not specified')}</div></div><div class="detail-row"><span class="detail-label">Status:</span> <span class="detail-value">${escapeHtml(app.status)}</span></div>${app.rejection_reason ? `<div class="detail-row"><span class="detail-label">Rejection:</span> <span class="detail-value">${escapeHtml(app.rejection_reason)}</span></div>` : ''}`; document.getElementById('detailModal').style.display = 'flex'; }
+        function closeDetailModal() { document.getElementById('detailModal').style.display = 'none'; }
+        function filterList(type) { const titleDiv = document.getElementById('list-title'); if (type === 'active') { titleDiv.textContent = 'Active Appointments'; document.getElementById('status-filter').value = 'active'; } else if (type === 'accepted') { titleDiv.textContent = 'Accepted Appointments'; document.getElementById('status-filter').value = 'all'; } else if (type === 'rejected') { titleDiv.textContent = 'Rejected Appointments'; document.getElementById('status-filter').value = 'rejected'; } else if (type === 'rescheduled') { titleDiv.textContent = 'Rescheduled Appointments'; document.getElementById('status-filter').value = 'all'; } applyFilters(); }
+        function openRescheduleModal(id) { currentRescheduleId = id; document.getElementById('rescheduleModal').style.display = 'flex'; }
+        function closeRescheduleModal() { document.getElementById('rescheduleModal').style.display = 'none'; currentRescheduleId = null; }
+        async function confirmReschedule() { const date = document.getElementById('reschedule-date').value, time = document.getElementById('reschedule-time').value, reason = document.getElementById('reschedule-reason').value; if (!date || !time) { alert('Please select date and time.'); return; } const res = await fetch('/api/pa/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: currentRescheduleId, status: 'Rescheduled', date, time, rescheduleReason: reason }) }); const data = await res.json(); if (data.success) { alert('Rescheduled!'); closeRescheduleModal(); loadRealData(); } else alert('Failed.'); }
+        function toggleSelectAll(checkbox) { document.querySelectorAll('.row-select:not(:disabled)').forEach(cb => cb.checked = checkbox.checked); onRowSelectChange(); }
+        function onRowSelectChange() { const selected = getSelectedIds(); document.getElementById('btn-mark-selected').disabled = selected.length === 0; const all = document.querySelectorAll('.row-select'); const sel = document.getElementById('select-all'); if (sel && all.length) sel.checked = Array.from(all).every(c => c.checked); }
+        function getSelectedIds() { return Array.from(document.querySelectorAll('.row-select:checked')).map(cb => parseInt(cb.value)); }
+        function markSelectedCompleted() { const ids = getSelectedIds(); if (!ids.length) { alert("No appointments selected."); return; } if (!confirm(`Mark ${ids.length} appointment(s) as Completed?`)) return; fetch('/api/task/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) }).then(r => r.json()).then(resp => { if (resp.success) { alert('Done.'); loadRealData(); } else alert("Failed."); }); }
+        function markCompleted(id) { if (!confirm("Mark as Completed?")) return; fetch('/api/task/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [id] }) }).then(r => r.json()).then(resp => { if (resp.success) { alert("Completed."); loadRealData(); } else alert("Failed."); }); }
+        function openForwardModal(id, name) { currentForwardId = id; document.getElementById('forward-item-name').textContent = name; document.getElementById('forwardModal').style.display = 'flex'; }
+        function closeForwardModal() { document.getElementById('forwardModal').style.display = 'none'; }
+        async function confirmForward() { const dept = document.getElementById('forwardDeptSelect').value; if (!dept) { alert("Select department"); return; } const res = await fetch('/api/forward_item', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ id: currentForwardId, dept, markCompleted: true }) }); const result = await res.json(); if (result.success) { alert(`✅ Forward successfully!\nAppointment forwarded to ${dept}`); closeForwardModal(); await fetch('/api/task/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [currentForwardId] }) }); loadRealData(); } else alert("Error forwarding."); }
+        async function loadTokenStatus() { const res = await fetch('/api/commissioner/tokens'); const data = await res.json(); function renderTokenList(items, containerId, extraField) { const el = document.getElementById(containerId); if (!items?.length) { el.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px;">No tokens found.</div>'; return; } el.innerHTML = items.map(t => `<div style="padding:12px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;"><div><div style="font-weight:700;">${t.token}</div><div style="font-size:12px;">${t.leader_name || t.name} &bull; ${t.department}</div><div style="font-size:12px;">${t.date} @ ${t.time}</div></div>${extraField === 'reschedule' && t.rescheduleReason ? `<div style="font-size:11px;color:#d97706;">${t.rescheduleReason}</div>` : ''}${extraField === 'rejection' && t.rejectionReason ? `<div style="font-size:11px;color:#dc2626;">${t.rejectionReason}</div>` : ''}</div>`).join(''); } renderTokenList(data.confirmed, 'confirmed-tokens-list', ''); renderTokenList(data.rescheduled, 'rescheduled-tokens-list', 'reschedule'); renderTokenList(data.pending, 'pending-tokens-list', ''); renderTokenList(data.rejected, 'rejected-tokens-list', 'rejection'); }
+        function escapeHtml(t){ return String(t||'').replace(/[&<>]/g, m=>m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');}
+        function generateReport() { alert("Generating PDF Report..."); }
+        function loadSettings() { const savedMobile = localStorage.getItem('commMobile'); if(savedMobile) document.getElementById('settings-mobile').value = savedMobile; const savedPic = localStorage.getItem('commProfilePic'); if(savedPic) { document.getElementById('settings-profile-img').src = savedPic; document.getElementById('header-profile-img').src = savedPic; } }
+        function saveMobileNumber() { localStorage.setItem('commMobile', document.getElementById('settings-mobile').value); alert('Mobile saved.'); }
+        function handleProfileUpload(input) { if(input.files && input.files[0]) { const reader = new FileReader(); reader.onload = e => { localStorage.setItem('commProfilePic', e.target.result); loadSettings(); alert('Profile picture updated.'); }; reader.readAsDataURL(input.files[0]); } }
+        function removeProfilePicture() { localStorage.removeItem('commProfilePic'); document.getElementById('settings-profile-img').src = ''; document.getElementById('header-profile-img').src = ''; alert('Photo removed.'); }
+        function changePassword() { const curr = document.getElementById('curr-pass').value, newP = document.getElementById('new-pass').value, conf = document.getElementById('conf-pass').value; if(!curr || !newP || !conf) { alert('Fill all fields.'); return; } if(newP !== conf) { alert('Passwords do not match.'); return; } if(newP.length < 8) { alert('Password must be at least 8 characters.'); return; } alert('Password updated successfully! (Demo)'); document.getElementById('curr-pass').value = ''; document.getElementById('new-pass').value = ''; document.getElementById('conf-pass').value = ''; }
+        function openMeetingModal() { document.getElementById('meetingModal').style.display = 'flex'; }
+        function closeMeetingModal() { document.getElementById('meetingModal').style.display = 'none'; }
+        function confirmMeeting() { const dept = document.getElementById('meetingDept').value, datetime = document.getElementById('meetingDateTime').value; if(!datetime) { alert('Please select date & time.'); return; } alert(`Meeting scheduled for ${dept} on ${datetime}\n(Notification sent)`); closeMeetingModal(); }
+        function switchTab(tabId) {
+            document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            if (tabId === 'statistics') updateStatisticsWithDeptFilter();
+            if (tabId === 'settings') loadSettings();
+            if (tabId === 'token-status') loadTokenStatus();
+        }
+        window.onload = () => { loadRealData(); loadSettings(); setInterval(loadRealData, 30000); };
+        window.onclick = (e) => { if(e.target.classList.contains('modal')) e.target.style.display = 'none'; };
+    </script>
+</body>
+</html>
